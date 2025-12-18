@@ -5,7 +5,7 @@ import { LoginUserDTO, RegisterUserDTO, EditUserDTO } from "../dtos/user.dto";
 const userService = new UserService();
 
 
-export class userController{
+export class UserController{
     registerUser = async (req: Request, res: Response)=>{
         try{
             const registerDetailsParsed = RegisterUserDTO.safeParse(req.body);
@@ -15,7 +15,8 @@ export class userController{
         }
 
         const user = await userService.createUser(registerDetailsParsed.data);
-        return res.status(201).json({message: "User registration Successful", user});
+
+        return res.status(200).json({message: "User registration Successful", user});
         }
         catch(error:any){ // Handling unknown errors
             return res.status(400).json({message: error.message || "User Registration Failed"})
@@ -27,15 +28,22 @@ export class userController{
         const loginDetailsParsed = LoginUserDTO.safeParse(req.body);
 
         try {
+
             if (!loginDetailsParsed.success) {
-                return res.status(401).json({message: "Invalid Credentials", error: parsed.error});
+                return res.status(401).json({message: "Invalid Credentials"});
             }
 
-            const 
-        } catch (error) {
-            
+            const {email , password} =loginDetailsParsed.data;
+
+            const loginResult = await userService.loginUser(email, password);
+
+            return res.status(201).json({message: "Login Successful", token: loginResult.token, user: loginResult.user})
+        } catch (error: any) {
+
+            return res.status(400).json({message: error.message || "User Login Failed"})
         }
     };
+
     getProfile = async(req: Request, res: Response)=>{};
     editProfile = async (req: Request, res: Response)=>{};
     deleteUser = async (req: Request, res: Response)=>{};
