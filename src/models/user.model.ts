@@ -1,6 +1,4 @@
-// src/models/user.model.ts
 import mongoose, { Document, Schema } from "mongoose";
-import { number } from "zod";
 
 export interface IUser extends Document {
     fullName: string;
