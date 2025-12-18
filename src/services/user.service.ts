@@ -3,8 +3,10 @@ import { UserRepository, UserRepositoryInterface } from '../repositories/user.re
 import { RegisterUserDTO, LoginUserDTO, EditUserDTO } from "../dtos/user.dto";
 import { IUser } from "../models/user.model";
 import jwt from 'jsonwebtoken';
+import dotenv from "dotenv"
 
 const userRepository: UserRepositoryInterface = new UserRepository();
+dotenv.config();
 
 export class UserService {
 
@@ -69,12 +71,13 @@ export class UserService {
             throw new Error("Invalid credentials");
         }
 
-        const token = jwt.sign(
+        // token geneation after login
+        const token = jwt.sign( 
             {
-                id: user._id,
+                id: user._id.toString(), // .toString() done because JWT payload should be JSON-serializable
                 role: user.role
             },
-            process.env.JWT_SECRET!,
+            process.env.JWT_SECRET_TOKEN!,
             { expiresIn: "1h" }
         );
 
