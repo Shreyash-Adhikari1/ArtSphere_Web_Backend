@@ -90,11 +90,11 @@ export class UserController {
 
     deleteUser = async (req: Request, res: Response) => {
         try {
-            const userId = (req as any).user.id;
+            const userId = await (req as any).user.id;
             if(!userId){
                 return res.status(401).json({message: "User Doesnt Exist"});
             }
-            await userService.deleteUser(userId);
+            userService.deleteUser(userId);
             return res.status(200).json({message:"User Deleted Successfully"});
         } catch (error: any) {
                 return res.status(401).json({message:"User Delete Failed"});
