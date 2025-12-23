@@ -13,7 +13,6 @@ export interface IUser extends Document {
     followerCount:number;
     followingCount: number;
     postCount: number;
-    
 }
 
 const UserSchema: Schema<IUser> = new mongoose.Schema(

@@ -11,4 +11,13 @@ userRouter.post('/register', userController.registerUser);
 
 userRouter.post('/login', userController.loginUser);
 
-export default userRouter;
+
+// Protected Routes
+userRouter.get('/me',authMiddleware,userController.getProfile);
+
+userRouter.patch('/me', authMiddleware,userController.editProfile);
+
+userRouter.delete('/me', authMiddleware, userController.deleteUser);
+
+
+export default userRouter; 

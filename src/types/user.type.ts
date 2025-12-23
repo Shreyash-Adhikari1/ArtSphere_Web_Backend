@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// model for the app to use, doesnt require database. 
 export const UserSchema = z.object({
     _id: z.string().optional(),
     fullName: z.string(),

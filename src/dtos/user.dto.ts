@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { UserSchema } from "../types/user.type";
 
+// The DTO [Data transfer Object] defines what values are needed for certain operations
+// For registration the following are necessary
 export const RegisterUserDTO = UserSchema.pick({
     fullName: true,
     username: true,
