@@ -2,8 +2,10 @@ import { FollowDTO } from "../../dtos/follow/follow.dto";
 import { IFollow } from "../../models/follow/follow.model";
 import { UserModel } from "../../models/user/user.model";
 import { FollowRepository } from "../../repositories/follow/follow.repository";
+import { UserRepository } from "../../repositories/user/user.repositroy";
 
 const followRepository = new FollowRepository();
+const userRepository = new UserRepository();
 
 export class FollowService {
   async follow(
@@ -37,13 +39,14 @@ export class FollowService {
     const newFollow = await followRepository.follow(followerId, followingId);
 
     // Update Follower Count in User Model
-    await UserModel.findByIdAndUpdate(followingId, {
-      $inc: { followerCount: 1 },
-    });
-
-    await UserModel.findByIdAndUpdate(followerId, {
-      $inc: { followingCount: 1 },
-    });
+    await userRepository.increaseFollowerCount(followingId);
+    // await UserModel.findByIdAndUpdate(followingId, {
+    //   $inc: { followerCount: 1 },
+    // });
+    await userRepository.increaseFollowingCount(followerId);
+    // await UserModel.findByIdAndUpdate(followerId, {
+    //   $inc: { followingCount: 1 },
+    // });
 
     return newFollow;
   }
@@ -76,13 +79,17 @@ export class FollowService {
       followerId,
       followingId,
     );
-    await UserModel.findByIdAndUpdate(followingId, {
-      $inc: { followerCount: -1 },
-    });
 
-    await UserModel.findByIdAndUpdate(followerId, {
-      $inc: { followingCount: -1 },
-    });
+    await userRepository.decreaseFollowerCount(followingId);
+
+    // await UserModel.findByIdAndUpdate(followingId, {
+    //   $inc: { followerCount: -1 },
+    // });
+
+    await userRepository.decreaseFollowingCount(followerId);
+    // await UserModel.findByIdAndUpdate(followerId, {
+    //   $inc: { followingCount: -1 },
+    // });
 
     return newUnfollow;
   }

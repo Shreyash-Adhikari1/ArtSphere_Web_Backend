@@ -20,6 +20,11 @@ export interface UserRepositoryInterface {
   decreasePostCount(userId: string, postId: string): Promise<IUser | null>;
 
   // Follow Ko Lagi Chahiney Functions
+  increaseFollowerCount(userId: string): Promise<IUser | null>;
+  increaseFollowingCount(userId: string): Promise<IUser | null>;
+
+  decreaseFollowerCount(userId: string): Promise<IUser | null>;
+  decreaseFollowingCount(userId: string): Promise<IUser | null>;
 }
 
 export class UserRepository implements UserRepositoryInterface {
@@ -90,5 +95,33 @@ export class UserRepository implements UserRepositoryInterface {
       },
       { new: true },
     );
+  }
+
+  async increaseFollowerCount(userId: string): Promise<IUser | null> {
+    const userObjId = new Types.ObjectId(userId);
+    return await UserModel.findByIdAndUpdate(userId, {
+      $inc: { followerCount: 1 },
+    });
+  }
+
+  async decreaseFollowerCount(userId: string): Promise<IUser | null> {
+    const userObjId = new Types.ObjectId(userId);
+    return await UserModel.findByIdAndUpdate(userId, {
+      $inc: { followerCount: -1 },
+    });
+  }
+
+  async increaseFollowingCount(userId: string): Promise<IUser | null> {
+    const userObjId = new Types.ObjectId(userId);
+    return await UserModel.findByIdAndUpdate(userId, {
+      $inc: { followingCount: 1 },
+    });
+  }
+
+  async decreaseFollowingCount(userId: string): Promise<IUser | null> {
+    const userObjId = new Types.ObjectId(userId);
+    return await UserModel.findByIdAndUpdate(userId, {
+      $inc: { followingCount: -1 },
+    });
   }
 }
