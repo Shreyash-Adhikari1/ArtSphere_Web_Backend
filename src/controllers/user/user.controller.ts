@@ -85,6 +85,7 @@ export class UserController {
   };
 
   editProfile = async (req: Request, res: Response) => {
+    console.log(req.file);
     try {
       const editDetailsParsed = EditUserDTO.safeParse(req.body);
 
@@ -95,11 +96,16 @@ export class UserController {
         });
       }
       const userId = (req as any).user.id;
+      // if (!req.file) {
+      //   return res.status(400).json({ message: "No file uploaded" });
+      // }
+      // Extract filename from multer
+      const avatarFileName = req.file?.filename;
 
-      const updatedUser = await userService.updateUser(
-        userId,
-        editDetailsParsed.data,
-      );
+      const updatedUser = await userService.updateUser(userId, {
+        ...editDetailsParsed.data,
+        avatar: avatarFileName,
+      });
       return res.status(200).json({
         success: true,
         message: "Profile updated successfully",

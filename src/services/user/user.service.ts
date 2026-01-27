@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import {
   UserRepository,
   UserRepositoryInterface,
-} from "../../repositories/user/user.repositroy";
+} from "../../repositories/user/user.repository";
 import { IUser } from "../../models/user/user.model";
 import { EditUserDTO, RegisterUserDTO } from "../../dtos/user/user.dto";
 

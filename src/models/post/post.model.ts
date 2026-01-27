@@ -5,7 +5,7 @@ import { string } from "zod";
 
 export interface IPost extends Document {
   author: mongoose.Types.ObjectId;
-  mediaUrl: string;
+  media: string;
   mediaType: "image" | "video";
   caption?: string;
   tags?: string[];
@@ -26,7 +26,7 @@ const PostSchema = new Schema<IPost>(
       index: true,
     },
 
-    mediaUrl: { type: String, required: true },
+    media: { type: String, required: true },
 
     mediaType: {
       type: String,

@@ -2,7 +2,7 @@ import { FollowDTO } from "../../dtos/follow/follow.dto";
 import { IFollow } from "../../models/follow/follow.model";
 import { UserModel } from "../../models/user/user.model";
 import { FollowRepository } from "../../repositories/follow/follow.repository";
-import { UserRepository } from "../../repositories/user/user.repositroy";
+import { UserRepository } from "../../repositories/user/user.repository";
 
 const followRepository = new FollowRepository();
 const userRepository = new UserRepository();

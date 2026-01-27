@@ -1,17 +1,23 @@
 import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { PostController } from "../../controllers/post/post.controller";
+import { uploads } from "../../middleware/upload.middleware";
 
 const postRouter = Router();
 const postController = new PostController();
 
 // Create and Edit routes
-postRouter.post("/create", authMiddleware, postController.createPost);
+postRouter.post(
+  "/create",
+  authMiddleware,
+  uploads.single("post-images"),
+  postController.createPost,
+);
 postRouter.patch("/edit", authMiddleware, postController.editPost);
 
 // Fetch Routes
 postRouter.get("/post", authMiddleware, postController.getFeed);
-postRouter.get("/post/:id", authMiddleware, postController.getPostByUser);
+postRouter.get("/post/:userId", authMiddleware, postController.getPostByUser);
 
 // Delete Routes
 postRouter.delete("/delete/:postId", authMiddleware, postController.deletePost);

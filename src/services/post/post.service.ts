@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { IPost, PostModel } from "../../models/post/post.model";
 import { PostRepository } from "../../repositories/post/post.repository";
 import { CreatePostDTO, EditPostDTO } from "../../dtos/post/post.dto";
-import { UserRepository } from "../../repositories/user/user.repositroy";
+import { UserRepository } from "../../repositories/user/user.repository";
 import { UserModel } from "../../models/user/user.model";
 
 const userRepository = new UserRepository();
@@ -10,7 +10,7 @@ const postRepository = new PostRepository();
 
 export class PostService {
   async createPost(userId: string, data: CreatePostDTO): Promise<IPost> {
-    if (!data.mediaUrl) {
+    if (!data.media) {
       throw new Error("Post must contain media");
     }
 
@@ -18,7 +18,7 @@ export class PostService {
       // MongoDB expects ObjectId, but request/JWT gives us a string
       // So we convert userId (string from JWT/request) into MongoDB ObjectId required by the Post model
       author: new Types.ObjectId(userId), // TRUST SERVER ONLY
-      mediaUrl: data.mediaUrl,
+      media: data.media,
       mediaType: data.mediaType,
       caption: data.caption,
       tags: data.tags,

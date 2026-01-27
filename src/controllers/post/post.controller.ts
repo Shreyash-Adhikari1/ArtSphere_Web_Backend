@@ -6,14 +6,22 @@ const postService = new PostService();
 
 export class PostController {
   createPost = async (req: Request, res: Response) => {
+    // console.log("create post chahi call bhayo");
     try {
+      // console.log("create post Call try block");
       const postDetailsParsed = CreatePostDTO.safeParse(req.body);
+      console.log("Post Details :", postDetailsParsed);
       if (!postDetailsParsed.success) {
         return res
           .status(401)
           .json({ success: false, message: "Create Post Failed" });
       }
       const userId = (req as any).user.id; //userId is taken from jwt and is not given by the user/client
+      if (!req.file) {
+        return res.status(400).json({ message: "Media file is required" });
+      }
+      console.log("Media Aayo, aba agaadi jaaney");
+      const postFileName = req.file.filename;
       if (!userId) {
         return res.status(400).json({
           success: false,
@@ -21,15 +29,18 @@ export class PostController {
         });
       }
 
-      const post = await postService.createPost(userId, postDetailsParsed.data);
+      const post = await postService.createPost(userId, {
+        ...postDetailsParsed.data,
+        media: postFileName,
+      });
 
       return res
         .status(200)
         .json({ success: true, message: "Post Created Successfully!", post });
     } catch (error: any) {
-      return res
-        .status(500)
-        .json({ message: error.message || "Create post Failed!!" });
+      return res.status(500).json({
+        message: error.message || "Create post Failed!!(Internal Server)",
+      });
     }
   };
 

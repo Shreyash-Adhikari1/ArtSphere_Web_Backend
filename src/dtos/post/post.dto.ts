@@ -3,12 +3,12 @@ import { PostSchema } from "../../types/post/post.type";
 
 // Create Post DTO
 export const CreatePostDTO = PostSchema.pick({
-  mediaUrl: true,
+  media: true,
   mediaType: true,
   caption: true,
   tags: true,
   visibility: true,
-});
+}).partial();
 
 export type CreatePostDTO = z.infer<typeof CreatePostDTO>;
 

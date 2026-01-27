@@ -38,6 +38,8 @@ app.use("/api/comment", commentRouter);
 
 // Follow Route
 app.use("/api/follow", followRouter);
+
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server running at: http://localhost:${PORT}`);
