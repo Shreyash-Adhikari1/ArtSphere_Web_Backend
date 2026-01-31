@@ -12,9 +12,18 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    console.log("Multer destination called", file.fieldname);
+    //
+    // const folderName = req.file?.fieldname; // profile-image // post-image
+    const folderName = file.fieldname; //doing this because gpt says req.file is undefined at this point, whatever that means
+    const uploadDir = path.join(__dirname, "../../uploads/" + folderName);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
+    console.log("Multer filename called", file.originalname);
     const uniqueSuffix = uuid.v4();
     const extension = path.extname(file.originalname);
     cb(null, `${file.fieldname}-${uniqueSuffix}${extension}`);
