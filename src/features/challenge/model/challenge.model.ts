@@ -1,9 +1,11 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { string } from "zod";
 
 export interface IChallenge extends Document {
   challengerId: mongoose.Types.ObjectId;
   title: string;
   challengeDescription: string;
+  challengeMedia: string;
 
   submissionCount: number;
   submitters: mongoose.Types.ObjectId[];
@@ -34,6 +36,10 @@ const ChallengeSchema = new Schema<IChallenge>(
     challengeDescription: {
       type: String,
       required: true,
+    },
+
+    challengeMedia: {
+      type: String,
     },
 
     submissionCount: {
