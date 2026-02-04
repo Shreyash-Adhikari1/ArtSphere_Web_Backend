@@ -39,7 +39,9 @@ export class PostRepository implements PostRepositoryInterface {
   }
 
   async getPostById(postId: string): Promise<IPost | null> {
-    return PostModel.findOne({ _id: postId, isDeleted: false }).exec();
+    return PostModel.findOne({ _id: postId, isDeleted: false })
+      .populate("author", "username avatar")
+      .exec();
   }
 
   async getPostsByUser(userId: string, skip = 0, limit = 10): Promise<IPost[]> {

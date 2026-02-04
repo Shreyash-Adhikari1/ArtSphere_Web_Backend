@@ -22,9 +22,11 @@ export class UserController {
 
       console.log("Registration for user successful: ", user);
 
-      return res
-        .status(200)
-        .json({ success: true, message: "User registration Successful", user });
+      return res.status(200).json({
+        success: true,
+        message: "User Registration Successfull",
+        user,
+      });
     } catch (error: any) {
       // Handling unknown errors
       return res.status(500).json({
@@ -147,6 +149,44 @@ export class UserController {
         success: false,
         message: error.message || "Internal Server Error",
       });
+    }
+  };
+
+  sendResetPasswordEmail = async (req: Request, res: Response) => {
+    try {
+      const email = req.body.email;
+      const user = await userService.sendResetPasswordEmail(email);
+      return res.status(200).json({
+        success: true,
+        data: user,
+        message: "If the email is registered, a reset link has been sent.",
+      });
+    } catch (error: Error | any) {
+      return res.status(error.statusCode ?? 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response) => {
+    try {
+      const token = req.params.token;
+      const { newPassword } = req.body;
+      await userService.resetPassword(token, newPassword);
+      return res
+        .status(200)
+        .json({
+          success: true,
+          message: "Password has been reset successfully.",
+        });
+    } catch (error: Error | any) {
+      return res
+        .status(error.statusCode ?? 500)
+        .json({
+          success: false,
+          message: error.message || "Internal Server Error",
+        });
     }
   };
 }

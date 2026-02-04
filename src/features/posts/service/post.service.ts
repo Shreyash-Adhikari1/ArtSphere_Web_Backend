@@ -25,9 +25,9 @@ export class PostService {
       visibility: data.visibility ?? "public",
     };
 
-    console.log("Service layer baata jaadai gareyko data:", postToCreate);
+    // console.log("Service layer baata jaadai gareyko data:", postToCreate);
     const post = await postRepository.createPost(postToCreate);
-    console.log("Service layer ma baneyko post:", post);
+    // console.log("Service layer ma baneyko post:", post);
     const postId = post._id.toString();
 
     const updatedUser = await userRepository.increasePostCount(userId, postId);
