@@ -13,7 +13,7 @@ export interface IChallengeRepository {
   // Retireve/Get Logics
   getAllChallenges(skip?: number, limit?: number): Promise<IChallenge[]>;
   getChallengebyId(challengeId: string): Promise<IChallenge | null>;
-  getChallengesByUser(userId: string): Promise<IChallenge[] | null>;
+  getChallengesByUser(userId: string): Promise<IChallenge[]>;
 
   // Delete Logic
   deleteChallenge(challengeId: string): Promise<IChallenge | null>;
@@ -50,7 +50,11 @@ export class ChallengeRepository implements IChallengeRepository {
     skip: number = 0,
     limit: number = 10,
   ): Promise<IChallenge[]> {
-    return await ChallengeModel.find().skip(skip).limit(limit).exec();
+    return await ChallengeModel.find()
+      .skip(skip)
+      .limit(limit)
+      .populate("challengerId", "_id username avatar")
+      .exec();
   }
 
   async getChallengebyId(challengeId: string): Promise<IChallenge | null> {
@@ -63,7 +67,7 @@ export class ChallengeRepository implements IChallengeRepository {
     userId: string,
     skip = 0,
     limit = 10,
-  ): Promise<IChallenge[] | null> {
+  ): Promise<IChallenge[]> {
     return await ChallengeModel.find({ challengerId: userId })
       .skip(skip)
       .limit(limit)
@@ -84,5 +88,14 @@ export class ChallengeRepository implements IChallengeRepository {
       challengerId: userId,
     }).exec();
     return deleted;
+  }
+
+  // ================ Misc Logic ==================
+  async closeChallenge(challengeId: string): Promise<IChallenge | null> {
+    return await ChallengeModel.findByIdAndUpdate(
+      challengeId,
+      { $set: { status: "closed" } },
+      { new: true },
+    );
   }
 }

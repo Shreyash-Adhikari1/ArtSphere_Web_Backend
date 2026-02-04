@@ -8,7 +8,7 @@ export class ChallengeController {
   createChallenge = async (req: Request, res: Response) => {
     try {
       const challengeDetails = CreateChallengeDTO.safeParse(req.body);
-      console.log("Challenge Details parse bhayo hai");
+      console.log("Challenge Details parse bhayo hai", challengeDetails);
       if (!challengeDetails.success) {
         return res.status(400).json({
           success: false,
@@ -27,6 +27,7 @@ export class ChallengeController {
         ...challengeDetails.data,
         challengeMedia: challengeMediaFile,
       });
+      console.log("Aayo hai", challenge);
       return res.status(201).json({
         success: true,
         message: "challenge created successfully",
@@ -151,7 +152,7 @@ export class ChallengeController {
 
   getChallengesByUser = async (req: Request, res: Response) => {
     try {
-      const { userId } = req.params;
+      const userId = (req as any).user.id;
       if (!userId) {
         return res.status(401).json({ message: "Unauthorized access denied" });
       }

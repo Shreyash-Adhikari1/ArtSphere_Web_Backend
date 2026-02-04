@@ -1,6 +1,5 @@
 import z from "zod";
 import { ChallengeSchema } from "../type/challenge.type";
-import { type } from "node:os";
 
 export const CreateChallengeDTO = ChallengeSchema.pick({
   challengeTitle: true,

@@ -12,7 +12,10 @@ export const ChallengeSchema = z.object({
   submittedPosts: z.string().optional(),
 
   status: z.enum(["open", "closed"]).default("open"),
-  endsAt: z.date(),
+  endsAt: z.preprocess(
+    (val) => (typeof val === "string" ? new Date(val) : val),
+    z.date(),
+  ),
 });
 
 export type Challenge = z.infer<typeof ChallengeSchema>;

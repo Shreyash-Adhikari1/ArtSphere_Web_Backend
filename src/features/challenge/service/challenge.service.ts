@@ -35,7 +35,7 @@ export class ChallengeService {
     if (!challenge) {
       throw new HttpError(404, "Challenge Not Found");
     }
-    if (challenge.challengerId.toString() !== userId) {
+    if (challenge.challengerId._id.toString() !== userId) {
       throw new HttpError(403, "You are not allowed to edit this challenge");
     }
     const today = new Date();
@@ -43,7 +43,7 @@ export class ChallengeService {
     if (endsAt <= today) {
       throw new HttpError(400, "Challenge cannot be edited after endsAt date");
     }
-    if (endsAt >= today) {
+    if (endsAt <= today) {
       throw new HttpError(400, "endsAt must be in the future");
     }
 
@@ -66,7 +66,8 @@ export class ChallengeService {
     if (!challenge) {
       throw new HttpError(404, "Challenge Not Found");
     }
-    if (challenge.challengerId.toString() !== userId) {
+    console.log(userId);
+    if (challenge.challengerId._id.toString() != userId) {
       throw new HttpError(403, "You are not allowed to delete this challenge");
     }
     await challengeRepository.deleteChallenge(challengeId);

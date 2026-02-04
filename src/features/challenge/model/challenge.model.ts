@@ -3,7 +3,7 @@ import { string } from "zod";
 
 export interface IChallenge extends Document {
   challengerId: mongoose.Types.ObjectId;
-  title: string;
+  challengeTitle: string;
   challengeDescription: string;
   challengeMedia: string;
 
@@ -27,7 +27,7 @@ const ChallengeSchema = new Schema<IChallenge>(
       index: true,
     },
 
-    title: {
+    challengeTitle: {
       type: String,
       required: true,
       trim: true,
