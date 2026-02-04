@@ -26,4 +26,10 @@ userRouter.delete("/me", authMiddleware, userController.deleteUser);
 // get routes
 userRouter.get("/users", userController.getAllusers);
 
+userRouter.post(
+  "/request-password-reset",
+  userController.sendResetPasswordEmail,
+);
+userRouter.post("/reset-password/:token", userController.resetPassword);
+// router.post("/reset-password/:token", authController.resetPassword);
 export default userRouter;

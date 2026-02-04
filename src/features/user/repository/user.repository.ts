@@ -85,7 +85,9 @@ export class UserRepository implements UserRepositoryInterface {
         $addToSet: { posts: post },
       },
       { new: true },
-    );
+    )
+      .populate("posts", "media caption tags")
+      .exec();
   }
 
   async decreasePostCount(
