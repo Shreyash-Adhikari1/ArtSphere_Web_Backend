@@ -21,7 +21,7 @@ export interface ISubmissionRepository {
   ): Promise<ISubmission | null>;
 
   deleteSubmission(submissionId: string): Promise<ISubmission | null>;
-  deleteAllSubmissions(challengerId: string): Promise<ISubmission | null>;
+  deleteAllSubmissions(challengerId: string): Promise<{ deletedCount: number }>;
 }
 
 export class SubmissionRepository implements ISubmissionRepository {
@@ -89,7 +89,7 @@ export class SubmissionRepository implements ISubmissionRepository {
   }
   async deleteAllSubmissions(
     challengerId: string,
-  ): Promise<ISubmission | null> {
-    throw new Error("Method not implemented.");
+  ): Promise<{ deletedCount: number }> {
+    return await SubmissionModel.deleteMany({ challengerId }).exec();
   }
 }
