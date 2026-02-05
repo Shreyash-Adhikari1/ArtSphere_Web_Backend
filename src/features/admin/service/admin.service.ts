@@ -68,7 +68,7 @@ export class AdminService {
     if (!post) {
       throw new Error("Post not found");
     }
-    const userId = post.author.toString();
+    const userId = post.author._id.toString();
     await adminRepository.deletePost(postId);
     await userRepository.decreasePostCount(userId, postId);
 
