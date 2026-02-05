@@ -17,7 +17,14 @@ submissionRouter.post(
   "/new/:challengeId",
   authMiddleware,
   uploads.single("challenge-submissions"),
-  submissionController.submitExistingPost,
+  submissionController.createNewPostAndSubmit,
+);
+
+// Get Submissions Routes
+submissionRouter.get(
+  "/get/:challengeId",
+  authMiddleware,
+  submissionController.getSubmissionsForChallenge,
 );
 
 // delete submission

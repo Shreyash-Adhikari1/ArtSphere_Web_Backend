@@ -20,7 +20,7 @@ export class SubmissionController {
           .status(400)
           .json({ success: false, message: "postId missing" });
       }
-
+      console.log(submitterId);
       const submission = await submissionService.submitToChallenge(
         challengeId,
         submitterId,
@@ -92,6 +92,30 @@ export class SubmissionController {
       return res
         .status(200)
         .json({ success: true, message: "submission deleted successfully" });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || "Internal Server Error",
+      });
+    }
+  };
+
+  getSubmissionsForChallenge = async (req: Request, res: Response) => {
+    try {
+      const { challengeId } = req.params;
+      if (!challengeId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "challengeId missing" });
+      }
+      const submissions =
+        await submissionService.getSubmissionsForChallenge(challengeId);
+      return res
+        .status(200)
+        .json({
+          success: true,
+          message: "Submissions fetched successfully",
+          submission: submissions,
+        });
     } catch (error: any) {
       return res.status(500).json({
         message: error.message || "Internal Server Error",

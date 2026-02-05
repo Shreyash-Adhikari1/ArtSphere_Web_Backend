@@ -32,13 +32,14 @@ export class SubmissionService {
     if (!Types.ObjectId.isValid(postId)) {
       throw new HttpError(400, "Invalid postId");
     }
-
+    console.log("Request baat aako author", submitterId);
     // Validating if the user is submitting their own posts
     const postToSubmit = await postRepository.getPostById(postId);
     if (!postToSubmit) {
       throw new HttpError(404, "Post Not Found");
     }
-    if (postToSubmit.author.toString() !== submitterId) {
+    console.log("Post Ko Author", postToSubmit.author);
+    if (postToSubmit.author._id.toString() !== submitterId) {
       throw new HttpError(400, "You can only submit your own posts");
     }
     // Getting Challenge by Id to see if it exists
@@ -143,7 +144,7 @@ export class SubmissionService {
     if (!postToSubmit) {
       throw new HttpError(404, "Post Not Found");
     }
-    if (postToSubmit.author.toString() !== submitterId) {
+    if (postToSubmit.author._id.toString() !== submitterId) {
       throw new HttpError(400, "You can only submit your own posts");
     }
 
@@ -189,4 +190,12 @@ export class SubmissionService {
   //     }
   //     return { message: "All submissions to this challenge deleted " };
   //   }
+
+  async getAllSubmissions() {
+    return await submissionRepository.getAllSubmissions();
+  }
+
+  async getSubmissionsForChallenge(challengeId: string) {
+    return await submissionRepository.getSubmissionsForChallenge(challengeId);
+  }
 }

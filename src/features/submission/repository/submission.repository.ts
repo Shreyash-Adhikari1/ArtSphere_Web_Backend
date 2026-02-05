@@ -31,7 +31,11 @@ export class SubmissionRepository implements ISubmissionRepository {
     submittedPostId: string,
   ): Promise<ISubmission | null> {
     const post = new mongoose.Types.ObjectId(submittedPostId);
-    const newSubmission = new SubmissionModel(challengeId, submitterId, post);
+    const newSubmission = new SubmissionModel({
+      challengeId,
+      submitterId,
+      submittedPostId: post,
+    });
     return newSubmission.save();
   }
   async getAllSubmissions(
