@@ -8,6 +8,7 @@ import express, { Application } from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import challengeRouter from "./features/challenge/route/challenge.route";
+import submissionRouter from "./features/submission/route/submission.route";
 
 const app: Application = express();
 // let corsOptions = {
@@ -43,5 +44,8 @@ app.use("/api/follow", followRouter);
 
 // Challenge Route
 app.use("/api/challenge", challengeRouter);
+
+// Submission Route
+app.use("/api/submit", submissionRouter);
 
 export default app;
