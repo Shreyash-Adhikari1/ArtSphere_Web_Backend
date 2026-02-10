@@ -15,7 +15,7 @@ export class UserController {
       if (!registerDetailsParsed.success) {
         return res
           .status(400)
-          .json({ success: false, messaeg: "Registration Failed" });
+          .json({ success: false, message: "Registration Failed" });
       }
 
       const user = await userService.createUser(registerDetailsParsed.data);
@@ -174,19 +174,15 @@ export class UserController {
       const token = req.params.token;
       const { newPassword } = req.body;
       await userService.resetPassword(token, newPassword);
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Password has been reset successfully.",
-        });
+      return res.status(200).json({
+        success: true,
+        message: "Password has been reset successfully.",
+      });
     } catch (error: Error | any) {
-      return res
-        .status(error.statusCode ?? 500)
-        .json({
-          success: false,
-          message: error.message || "Internal Server Error",
-        });
+      return res.status(error.statusCode ?? 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
     }
   };
 }
