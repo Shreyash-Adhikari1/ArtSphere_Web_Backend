@@ -32,6 +32,12 @@ const token = describe("After Login Tests", () => {
   });
 
   describe("/GET /api/user/me", () => {
+    test("should fail if user is not logged-in || No Token Provided", async () => {
+      const response = await request(app).get("/api/user/me");
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("message", "No Token Provided");
+    });
     test("Should return the authenticated logged-in user", async () => {
       const response = await request(app)
         .get("/api/user/me")
@@ -41,4 +47,45 @@ const token = describe("After Login Tests", () => {
       expect(response.body).toHaveProperty("user");
     });
   });
+
+  describe("/PATCH /api/user/me", () => {
+    test("should update profile when authenticated", async () => {
+      const response = await request(app)
+        .patch("/api/user/me")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          fullName: "Updated Name",
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Profile updated successfully",
+      );
+      expect(response.body).toHaveProperty("user");
+    });
+
+    test("should fail update without token", async () => {
+      const response = await request(app)
+        .patch("/api/user/me")
+        .send({ fullName: "Hacker Name" });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty("message", "No Token Provided");
+    });
+  });
+
+  //   describe("/DELETE /api/user/me", () => {
+  //     test("should delete user wehn authenticated", async () => {
+  //       const response = await request(app)
+  //         .delete("/api/user/me")
+  //         .set("Authorization", `Bearer ${authToken}`);
+
+  //       expect(response.status).toBe(200);
+  //       expect(response.body).toHaveProperty(
+  //         "message",
+  //         "User Deleted Successfully",
+  //       );
+  //     });
+  //   });
 });
