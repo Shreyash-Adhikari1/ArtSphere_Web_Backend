@@ -36,5 +36,6 @@ export const EditUserDTO = UserSchema.pick({
   bio: true,
   address: true,
   avatar: true,
+  role: true,
 }).partial(); // doesnt ask user to insert all field when editing
 export type EditUserDTO = z.infer<typeof EditUserDTO>;

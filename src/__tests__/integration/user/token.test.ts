@@ -3,7 +3,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { UserModel } from "../../../features/user/model/user.model";
 import app from "../../../app";
+import dotenv from "dotenv";
 
+dotenv.config({ path: ".env.test" });
 // Dummy User For Auth Tests
 const testUser = {
   email: "test@example.com",
@@ -27,13 +29,9 @@ describe("Auth – Token Expiry", () => {
     userId = user._id.toString();
 
     // We create an already-expired JWT token
-    expiredToken = jwt.sign(
-      { id: userId },
-      process.env.JWT_SECRET_TOKEN as string,
-      {
-        expiresIn: "-10s", // expired
-      },
-    );
+    expiredToken = jwt.sign({ id: userId }, process.env.JWT_SECRET as string, {
+      expiresIn: "-10s", // expired
+    });
   });
 
   afterAll(async () => {
