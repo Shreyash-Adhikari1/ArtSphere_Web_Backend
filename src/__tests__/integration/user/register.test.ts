@@ -1,9 +1,9 @@
 import request from "supertest";
-import app from "../../app";
-import { UserModel } from "../../features/user/model/user.model";
+import app from "../../../app";
+import { UserModel } from "../../../features/user/model/user.model";
 import bcrypt from "bcrypt";
-import { email } from "zod";
 
+// Dummy User For Auth Tests
 const testUser = {
   email: "test@example.com",
   password: "test@1234",
@@ -13,6 +13,9 @@ const testUser = {
   phoneNumber: "9876543210",
   address: "Kathmandu",
 };
+
+// ================================= REGISTRATION TEST CASES ============================================
+
 describe("User Registration Integration Tests", () => {
   beforeAll(async () => {
     // Ensure test user does not exist before tests
@@ -63,6 +66,25 @@ describe("User Registration Integration Tests", () => {
       );
     });
 
+    test("should fail to register user if password is less than 8 characters", async () => {
+      const userWithBadPass = {
+        email: "test@example.com",
+        password: "test",
+        confirmPassword: "test@123",
+        username: "testUser",
+        fullName: "Test User",
+        phoneNumber: "9876543210",
+        address: "Kathmandu",
+      };
+      const response = await request(app)
+        .post("/api/user/register")
+        .send(userWithBadPass);
+
+      // Validate
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("message", "Registration Failed");
+    });
+
     test("should fail to register user if password and confirmPassword dont match", async () => {
       const userWithBadPass = {
         email: "test@example.com",
@@ -84,51 +106,4 @@ describe("User Registration Integration Tests", () => {
   });
 });
 
-describe("User Login Integration Tests", () => {
-  beforeAll(async () => {
-    const hashedPassword = await bcrypt.hash(testUser.password, 10);
-    await UserModel.create({
-      fullName: testUser.fullName,
-      username: testUser.username,
-      email: testUser.email,
-      password: hashedPassword,
-    });
-  });
-  afterAll(async () => {
-    await UserModel.deleteMany({ email: testUser.email });
-  });
-
-  describe("/POST /api/user/login", () => {
-    const testEmail = {
-      email: testUser.email,
-      password: testUser.password,
-    };
-    test("should log in the user successfully", async () => {
-      const response = await request(app)
-        .post("/api/user/login")
-        .send(testEmail);
-
-      // Validation
-      expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty("message", "Login Successful");
-    });
-  });
-  test("should fail for non-existent user", async () => {
-    const response = await request(app).post("/api/user/login").send({
-      email: "nouser@example.com",
-      password: "whatever",
-    });
-
-    expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty("message", "Invalid credentials");
-  });
-  test("should fail for wrong password", async () => {
-    const response = await request(app).post("/api/user/login").send({
-      email: testUser.email,
-      password: "wrongpassword",
-    });
-
-    expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty("message", "Invalid credentials");
-  });
-});
+// ================================= LOGIN TEST CASES ============================================
