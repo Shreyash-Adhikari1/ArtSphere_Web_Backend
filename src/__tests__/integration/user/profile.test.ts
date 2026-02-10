@@ -73,6 +73,24 @@ const token = describe("After Login Tests", () => {
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty("message", "No Token Provided");
     });
+
+    test("should fail with invalid update data", async () => {
+      await UserModel.create({
+        email: "test1@example.com",
+        password: "test@1234",
+        username: "testUser12",
+        fullName: "Test User",
+      });
+      const response = await request(app)
+        .patch("/api/user/me")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({ username: "testUser12" });
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Email or username already in use",
+      );
+    });
   });
 
   //   describe("/DELETE /api/user/me", () => {

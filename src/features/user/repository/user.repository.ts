@@ -33,7 +33,10 @@ export class UserRepository implements UserRepositoryInterface {
     return UserModel.findOne({ email }).exec();
   }
   async getAllUsers(skip: number = 0, limit: number = 10) {
-    return UserModel.find().skip(skip).limit(limit).exec();
+    return UserModel.find({ role: { $ne: "admin" } })
+      .skip(skip)
+      .limit(limit)
+      .exec();
   }
 
   async getUserById(userId: string) {
