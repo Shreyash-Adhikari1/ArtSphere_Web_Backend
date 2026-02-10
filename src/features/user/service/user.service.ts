@@ -147,6 +147,7 @@ export class UserService {
     return { message: "User deleted successfully" };
   }
 
+  // Request Password Reset logic
   async sendResetPasswordEmail(email?: string) {
     if (!email) {
       throw new HttpError(400, "Email is required");
