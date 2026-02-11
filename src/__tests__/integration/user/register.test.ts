@@ -41,18 +41,35 @@ describe("User Registration Integration Tests", () => {
       );
       expect(response.body).toHaveProperty("user");
     });
+
+    test("should fail to register user with empty fields", async () => {
+      const response = await request(app).post("/api/user/register");
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("message", "Registration Failed");
+    });
+
+    test("should fail to register user with invalid email", async () => {
+      const response = await request(app)
+        .post("/api/user/register")
+        .send({ ...testUser, email: "testuser" });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("message", "Registration Failed");
+    });
+
     test("should fail to regsiter a user with existing email", async () => {
       const response = await request(app)
         .post("/api/user/register")
         .send(testUser);
 
-      // Validate
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty(
         "message",
         "User with this email or username already exists",
       );
     });
+
     test("should fail to register a user with existing username", async () => {
       const response = await request(app)
         .post("/api/user/register")
@@ -80,7 +97,6 @@ describe("User Registration Integration Tests", () => {
         .post("/api/user/register")
         .send(userWithBadPass);
 
-      // Validate
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty("message", "Registration Failed");
     });
@@ -99,11 +115,8 @@ describe("User Registration Integration Tests", () => {
         .post("/api/user/register")
         .send(userWithBadPass);
 
-      // Validate
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty("message", "Registration Failed");
     });
   });
 });
-
-// ================================= LOGIN TEST CASES ============================================

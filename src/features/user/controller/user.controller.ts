@@ -42,7 +42,7 @@ export class UserController {
     try {
       if (!loginDetailsParsed.success) {
         return res
-          .status(401)
+          .status(400)
           .json({ success: false, message: "Invalid Credentials" });
       }
 
@@ -110,7 +110,7 @@ export class UserController {
         user: updatedUser,
       });
     } catch (error: any) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
         message: error.message || "Something went wrong",
       });

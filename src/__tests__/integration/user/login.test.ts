@@ -51,6 +51,13 @@ describe("User Login Integration Tests", () => {
       expect(response.status).toBe(500);
       expect(response.body).toHaveProperty("message", "Invalid credentials");
     });
+    test("should fail to login user with empty fields", async () => {
+      const response = await request(app).post("/api/user/login");
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("message", "Invalid Credentials");
+    });
+
     test("should fail for wrong password", async () => {
       const response = await request(app).post("/api/user/login").send({
         email: testUser.email,

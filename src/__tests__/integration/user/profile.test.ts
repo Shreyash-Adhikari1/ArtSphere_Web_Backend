@@ -74,22 +74,52 @@ const token = describe("After Login Tests", () => {
       expect(response.body).toHaveProperty("message", "No Token Provided");
     });
 
-    test("should fail with invalid update data", async () => {
+    test("should fail when updating to an existing username", async () => {
       await UserModel.create({
-        email: "test1@example.com",
+        email: "conflict1@example.com",
         password: "test@1234",
-        username: "testUser12",
+        username: "takenUsername",
         fullName: "Test User",
       });
+
       const response = await request(app)
         .patch("/api/user/me")
         .set("Authorization", `Bearer ${authToken}`)
-        .send({ username: "testUser12" });
-      expect(response.status).toBe(400);
+        .send({ username: "takenUsername" });
+
+      expect(response.status).toBe(500);
       expect(response.body).toHaveProperty(
         "message",
         "Email or username already in use",
       );
+    });
+
+    test("should fail when updating to an existing email", async () => {
+      await UserModel.create({
+        email: "taken@example.com",
+        password: "test@1234",
+        username: "uniqueUsername",
+        fullName: "Test User",
+      });
+
+      const response = await request(app)
+        .patch("/api/user/me")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({ email: "taken@example.com" });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toHaveProperty(
+        "message",
+        "Email or username already in use",
+      );
+    });
+    test("should fail if no data is inserted", async () => {
+      const response = await request(app)
+        .patch("/api/user/me")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty("message", "Invalid input");
     });
   });
 
