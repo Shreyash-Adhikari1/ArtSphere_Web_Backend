@@ -1,8 +1,8 @@
-import { FollowDTO } from "../dto/follow.dto";
 import { IFollow } from "../model/follow.model";
-import { UserModel } from "../../user/model/user.model";
 import { FollowRepository } from "../repository/follow.repository";
 import { UserRepository } from "../../user/repository/user.repository";
+import { Types } from "mongoose";
+import { HttpError } from "../../../errors/http-error";
 
 const followRepository = new FollowRepository();
 const userRepository = new UserRepository();
@@ -10,77 +10,49 @@ const userRepository = new UserRepository();
 export class FollowService {
   async follow(
     followerId: string,
-    followData: FollowDTO,
+    followingId: string,
   ): Promise<IFollow | null> {
-    const parsed = FollowDTO.safeParse(followData);
-    if (!parsed.success) {
-      throw new Error("Invalid Follow Data");
+    const userToFollow = new Types.ObjectId(followingId).toString();
+    if (!userToFollow) {
+      throw new HttpError(404, "User to follow not found");
     }
-
-    // Using the Dto to get userId to follow instead of hard coding it
-    const followingId = parsed.data.following;
-
-    if (followerId == followingId) {
-      throw new Error("You cannot follow or unfollow yourself");
+    if (followerId == userToFollow) {
+      throw new HttpError(400, "You cannot follow or unfollow yourself");
     }
-
-    if (!followingId) {
-      throw new Error("User does not exist");
-    }
-    const isAlreadyFollowing = await followRepository.isFollowing(
+    const isAlreadyFollowed = await followRepository.isFollowing(
       followerId,
-      followingId,
-    ); // check if user already folloes another user
-
-    if (isAlreadyFollowing) {
-      throw new Error("You are already following this user");
+      userToFollow,
+    );
+    if (isAlreadyFollowed) {
+      throw new HttpError(400, "You already follow this user");
     }
-
-    const newFollow = await followRepository.follow(followerId, followingId);
-
-    // Update Follower Count in User Model
-    await userRepository.increaseFollowerCount(followingId);
-    // await UserModel.findByIdAndUpdate(followingId, {
-    //   $inc: { followerCount: 1 },
-    // });
+    const newFollow = await followRepository.follow(followerId, userToFollow);
+    await userRepository.increaseFollowerCount(userToFollow);
     await userRepository.increaseFollowingCount(followerId);
-    // await UserModel.findByIdAndUpdate(followerId, {
-    //   $inc: { followingCount: 1 },
-    // });
 
     return newFollow;
   }
 
   async unfollow(
     followerId: string,
-    followData: FollowDTO,
+    followingId: string,
   ): Promise<IFollow | null> {
-    const parsed = FollowDTO.safeParse(followData);
-    if (!parsed.success) {
-      throw new Error("Invalid follow data");
+    const userToUnfollow = new Types.ObjectId(followingId).toString();
+    if (!userToUnfollow) {
+      throw new HttpError(404, "User to unfollow not found");
     }
-    const followingId = parsed.data.following;
-
-    if (!followingId) {
-      throw new Error("User Doesnt Exist");
-    }
-    if (followerId == followingId) {
-      throw new Error("You cannot follow or unfollow yourself");
-    }
-    const isFollowed = await followRepository.isFollowing(
+    const isAlreadyFollowed = await followRepository.isFollowing(
       followerId,
-      followingId,
+      userToUnfollow,
     );
-    if (!isFollowed) {
-      throw new Error("You do not follow this user");
+    if (!isAlreadyFollowed) {
+      throw new HttpError(400, "You do not follow this user");
     }
-
-    const newUnfollow = await followRepository.unfollow(
+    const unfollow = await followRepository.unfollow(
       followerId,
-      followingId,
+      userToUnfollow,
     );
-
-    await userRepository.decreaseFollowerCount(followingId);
+    await userRepository.decreaseFollowerCount(userToUnfollow);
 
     // await UserModel.findByIdAndUpdate(followingId, {
     //   $inc: { followerCount: -1 },
@@ -91,7 +63,7 @@ export class FollowService {
     //   $inc: { followingCount: -1 },
     // });
 
-    return newUnfollow;
+    return unfollow;
   }
 
   async getFollowers(userId: string): Promise<IFollow[]> {

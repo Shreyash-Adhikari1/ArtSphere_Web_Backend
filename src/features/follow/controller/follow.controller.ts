@@ -1,39 +1,32 @@
 import { Request, Response } from "express";
 import { FollowService } from "../service/follow.service";
-import { FollowDTO } from "../dto/follow.dto";
+import { HttpError } from "../../../errors/http-error";
 
 const followService = new FollowService();
 
 export class FollowController {
   follow = async (req: Request, res: Response) => {
     try {
-      const followDetailsParsed = FollowDTO.safeParse(req.body);
-      if (!followDetailsParsed.success) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Invalid Follow Details" });
-      }
-      const followerId = (req as any).user.id; //userId is taken from jwt and is not given by the user/client
+      const followerId = (req as any).user.id;
       if (!followerId) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized || User unauthorized",
-        });
+        return res
+          .status(401)
+          .json({ success: false, message: "Unauthorized access denied" });
       }
-      const followed = await followService.follow(
-        followerId,
-        followDetailsParsed.data,
-      );
+      const { followingId } = req.params;
+      if (!followingId) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User to follow not found" });
+      }
+      const follow = await followService.follow(followerId, followingId);
       return res.status(200).json({
         success: true,
         message: "User Followed Successfully",
-        data: {
-          follower: followed?.follower,
-          following: followed?.following,
-        },
+        data: { follower: follow?.follower, following: follow?.following },
       });
     } catch (error: any) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: error.message || "Internal Server Error",
       });
@@ -42,14 +35,6 @@ export class FollowController {
 
   unfollow = async (req: Request, res: Response) => {
     try {
-      const followDetailsParsed = FollowDTO.safeParse(req.body);
-      if (!followDetailsParsed.success) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid Follow Data",
-          error: followDetailsParsed.error,
-        });
-      }
       const followerId = (req as any).user.id;
       if (!followerId) {
         return res.status(401).json({
@@ -57,10 +42,14 @@ export class FollowController {
           message: "Unauthorized || User unauthorized",
         });
       }
-      const unfollow = await followService.unfollow(
-        followerId,
-        followDetailsParsed.data,
-      );
+      const { followingId } = req.params;
+      if (!followingId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "User to unfollow not found" });
+      }
+
+      const unfollow = await followService.unfollow(followerId, followingId);
       return res.status(200).json({
         success: true,
         message: "User Unfollowed Successfully",
@@ -77,7 +66,7 @@ export class FollowController {
     }
   };
 
-  getFollowers = async (req: Request, res: Response) => {
+  getMyFollowers = async (req: Request, res: Response) => {
     try {
       const userId = (req as any).user.id;
       if (!userId) {
@@ -100,7 +89,7 @@ export class FollowController {
     }
   };
 
-  getFollowing = async (req: Request, res: Response) => {
+  getMyFollowing = async (req: Request, res: Response) => {
     try {
       const userId = (req as any).user.id;
       if (!userId) {
@@ -113,6 +102,50 @@ export class FollowController {
       return res.status(200).json({
         success: true,
         message: "Following Fetched Successfully",
+        data: following,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  };
+
+  getUsersFollowers = async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res
+          .status(404)
+          .json({ success: false, message: "user not found" });
+      }
+      const followers = await followService.getFollowers(userId);
+      return res.status(200).json({
+        success: true,
+        message: "Users Followers Fetched Successfully",
+        data: followers,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  };
+
+  getUsersFollowing = async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res
+          .status(404)
+          .json({ success: false, message: "user not found" });
+      }
+      const following = await followService.getFollowing(userId);
+      return res.status(200).json({
+        success: true,
+        message: "Users Following Fetched Successfully",
         data: following,
       });
     } catch (error: any) {

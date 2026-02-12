@@ -5,11 +5,30 @@ const followRouter = Router();
 const followController = new FollowController();
 
 // follow and unfollow routes
-followRouter.post("/follow", authMiddleware, followController.follow);
-followRouter.post("/unfollow", authMiddleware, followController.unfollow);
+followRouter.post(
+  "/follow/:followingId",
+  authMiddleware,
+  followController.follow,
+);
+followRouter.post(
+  "/unfollow/:followingId",
+  authMiddleware,
+  followController.unfollow,
+);
 
 // get routes
-followRouter.get("/followers", authMiddleware, followController.getFollowers);
-followRouter.get("/following", authMiddleware, followController.getFollowing);
+followRouter.get("/followers", authMiddleware, followController.getMyFollowers);
+followRouter.get("/following", authMiddleware, followController.getMyFollowing);
+
+followRouter.get(
+  "/:userId/followers",
+  authMiddleware,
+  followController.getUsersFollowers,
+);
+followRouter.get(
+  "/:userId/following",
+  authMiddleware,
+  followController.getUsersFollowing,
+);
 
 export default followRouter;

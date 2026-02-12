@@ -20,7 +20,7 @@ const FollowSchema: Schema<IFollow> = new mongoose.Schema(
       required: true,
       index: true,
     },
-    isFollowActive: { type: Boolean, default: false },
+    isFollowActive: { type: Boolean, default: true },
   },
   { timestamps: true },
 );

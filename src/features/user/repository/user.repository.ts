@@ -110,28 +110,28 @@ export class UserRepository implements UserRepositoryInterface {
 
   async increaseFollowerCount(userId: string): Promise<IUser | null> {
     const userObjId = new Types.ObjectId(userId);
-    return await UserModel.findByIdAndUpdate(userId, {
+    return await UserModel.findByIdAndUpdate(userObjId, {
       $inc: { followerCount: 1 },
     });
   }
 
   async decreaseFollowerCount(userId: string): Promise<IUser | null> {
     const userObjId = new Types.ObjectId(userId);
-    return await UserModel.findByIdAndUpdate(userId, {
+    return await UserModel.findByIdAndUpdate(userObjId, {
       $inc: { followerCount: -1 },
     });
   }
 
   async increaseFollowingCount(userId: string): Promise<IUser | null> {
     const userObjId = new Types.ObjectId(userId);
-    return await UserModel.findByIdAndUpdate(userId, {
+    return await UserModel.findByIdAndUpdate(userObjId, {
       $inc: { followingCount: 1 },
     });
   }
 
   async decreaseFollowingCount(userId: string): Promise<IUser | null> {
     const userObjId = new Types.ObjectId(userId);
-    return await UserModel.findByIdAndUpdate(userId, {
+    return await UserModel.findByIdAndUpdate(userObjId, {
       $inc: { followingCount: -1 },
     });
   }
