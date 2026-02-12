@@ -64,9 +64,32 @@ export class UserController {
     }
   };
 
-  getProfile = async (req: Request, res: Response) => {
+  getMyProfile = async (req: Request, res: Response) => {
     try {
       const userId = (req as any).user.id;
+
+      const user = await userService.getUserById(userId);
+
+      return res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return res.status(404).json({
+        success: false,
+        message: error.message || "User not found",
+      });
+    }
+  };
+
+  getUserProfile = async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
 
       const user = await userService.getUserById(userId);
 

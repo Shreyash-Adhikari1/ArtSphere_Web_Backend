@@ -12,7 +12,7 @@ userRouter.post("/register", userController.registerUser);
 userRouter.post("/login", userController.loginUser);
 
 // Protected Routes
-userRouter.get("/me", authMiddleware, userController.getProfile);
+userRouter.get("/me", authMiddleware, userController.getMyProfile);
 
 userRouter.patch(
   "/me",
@@ -25,6 +25,7 @@ userRouter.delete("/me", authMiddleware, userController.deleteUser);
 
 // get routes
 userRouter.get("/users", userController.getAllusers);
+userRouter.get("/:userId", authMiddleware, userController.getUserProfile);
 
 userRouter.post(
   "/request-password-reset",
