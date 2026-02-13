@@ -31,4 +31,11 @@ followRouter.get(
   followController.getUsersFollowing,
 );
 
+// check if follow exists route [frotnend required]
+followRouter.get(
+  "/is-following/:followingId",
+  authMiddleware,
+  followController.getIsFollowingStatus,
+);
+
 export default followRouter;

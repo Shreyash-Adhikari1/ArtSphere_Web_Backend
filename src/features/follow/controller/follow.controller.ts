@@ -155,4 +155,36 @@ export class FollowController {
       });
     }
   };
+
+  getIsFollowingStatus = async (req: Request, res: Response) => {
+    try {
+      const followerId = (req as any).user.id;
+      if (!followerId) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized || User unauthorized",
+        });
+      }
+      const { followingId } = req.params;
+      if (!followingId) {
+        return res.status(404).json({
+          success: false,
+          message: "User to follow not found ",
+        });
+      }
+      const isFollowing = await followService.isAlreadyFollowing(
+        followerId,
+        followingId,
+      );
+      return res.status(200).json({
+        success: true,
+        isFollowing,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  };
 }

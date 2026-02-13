@@ -73,4 +73,12 @@ export class FollowService {
   async getFollowing(userId: string): Promise<IFollow[]> {
     return await followRepository.getFollowing(userId);
   }
+
+  async isAlreadyFollowing(followerId: string, followingId: string) {
+    const isFollowing = await followRepository.isFollowing(
+      followerId,
+      followingId,
+    );
+    return isFollowing;
+  }
 }
