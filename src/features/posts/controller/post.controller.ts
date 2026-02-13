@@ -125,9 +125,32 @@ export class PostController {
     }
   };
 
-  getPostByUser = async (req: Request, res: Response) => {
+  getMyPosts = async (req: Request, res: Response) => {
     try {
       const userId = (req as any).user.id;
+
+      if (!userId) {
+        return res.status(400).json({
+          message: "User ID is required",
+        });
+      }
+
+      const posts = await postService.getPostsByUser(userId);
+
+      return res.status(200).json({
+        message: "User posts fetched successfully",
+        posts,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        message: error.message || "Failed to fetch user posts",
+      });
+    }
+  };
+
+  getPostsByUser = async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
 
       if (!userId) {
         return res.status(400).json({
