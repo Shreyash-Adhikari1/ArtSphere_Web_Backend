@@ -1,7 +1,5 @@
 // src/models/post.model.ts
 import mongoose, { Schema, Document } from "mongoose";
-import { time } from "node:console";
-import { string } from "zod";
 
 export interface IPost extends Document {
   author: mongoose.Types.ObjectId;
@@ -14,6 +12,7 @@ export interface IPost extends Document {
   likedBy: mongoose.Types.ObjectId[];
   commentCount: number;
   commentedBy: mongoose.Types.ObjectId[];
+  isChallengeSubmission: boolean;
   isDeleted: boolean;
 }
 
@@ -52,6 +51,8 @@ const PostSchema = new Schema<IPost>(
     commentCount: { type: Number, default: 0 },
 
     commentedBy: [{ type: Schema.Types.ObjectId, ref: "User", index: true }],
+
+    isChallengeSubmission: { type: Boolean, default: false },
 
     isDeleted: { type: Boolean, default: false },
   },

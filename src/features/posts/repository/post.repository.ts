@@ -15,6 +15,8 @@ export interface PostRepositoryInterface {
 
   increaseCommentCount(postId: string, userId: string): Promise<IPost | null>;
   decreaseCommentCount(postId: string, userId: string): Promise<IPost | null>;
+
+  postCreateForSubmission(postId: string): Promise<IPost | null>;
 }
 
 export class PostRepository implements PostRepositoryInterface {
@@ -121,6 +123,14 @@ export class PostRepository implements PostRepositoryInterface {
         $inc: { commentCount: -1 },
         $pull: { commentedBy: userObjId },
       },
+      { new: true },
+    );
+  }
+
+  async postCreateForSubmission(postId: string): Promise<IPost | null> {
+    return await PostModel.findByIdAndUpdate(
+      postId,
+      { $set: { isChallengeSubmission: true } },
       { new: true },
     );
   }

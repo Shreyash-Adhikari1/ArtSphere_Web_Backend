@@ -16,6 +16,7 @@
 /coverage
 
 # The Uploaded Files
-/uploads/challenge-images/
+/uploads/challenge-images/ 
 /uploads/post-images/
 /uploads/profile-image/
+/uploads/challenge-submissions/ 

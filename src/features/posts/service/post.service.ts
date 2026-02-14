@@ -47,7 +47,7 @@ export class PostService {
     }
 
     // Ownership check (CRITICAL)
-    if (post.author.toString() !== userId) {
+    if (post.author._id.toString() !== userId) {
       throw new Error("You are not allowed to edit this post");
     }
 
@@ -68,7 +68,7 @@ export class PostService {
       throw new Error("Post not found");
     }
 
-    if (post.author.toString() !== userId) {
+    if (post.author._id.toString() !== userId) {
       throw new Error("You are not allowed to delete this post");
     }
 
