@@ -29,6 +29,11 @@ challengeRouter.get(
   authMiddleware,
   challengeController.getChallengesByUser,
 );
+challengeRouter.get(
+  "/:challengeId",
+  authMiddleware,
+  challengeController.getChallengeById,
+);
 
 // Delete Challenge Routes
 challengeRouter.delete(

@@ -70,6 +70,7 @@ export class SubmissionService {
       submitterId,
       postId,
     );
+    await challengeRepository.increaseSubmisionCount(challengeId);
 
     return submission;
   }
@@ -154,6 +155,8 @@ export class SubmissionService {
       postId,
     );
 
+    await challengeRepository.increaseSubmisionCount(challengeId);
+
     return submission;
   }
 
@@ -179,6 +182,8 @@ export class SubmissionService {
       await postRepository.deletePost(postToDelete);
       await userRepository.decreasePostCount(submitterId, postToDelete);
     }
+    const challengeId = submisison.challengeId.toString();
+    await challengeRepository.decreaseSubmissionCount(challengeId);
     return { message: "Submission Deleted Successfully" };
   }
 

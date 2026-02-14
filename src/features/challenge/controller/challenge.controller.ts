@@ -169,4 +169,28 @@ export class ChallengeController {
       });
     }
   };
+
+  getChallengeById = async (req: Request, res: Response) => {
+    try {
+      const { challengeId } = req.params;
+      if (!challengeId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Challenge ID is required" });
+      }
+
+      const challenge = await challengeService.getChallengeById(challengeId);
+
+      return res.status(200).json({
+        success: true,
+        message: "Challenge fetched successfully",
+        challenge,
+      });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  };
 }

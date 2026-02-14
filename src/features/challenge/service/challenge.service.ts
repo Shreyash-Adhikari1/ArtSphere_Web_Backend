@@ -92,4 +92,12 @@ export class ChallengeService {
   async getChallengesByUser(userId: string): Promise<IChallenge[]> {
     return await challengeRepository.getChallengesByUser(userId);
   }
+
+  async getChallengeById(challengeId: string): Promise<IChallenge> {
+    const challenge = await challengeRepository.getChallengebyId(challengeId);
+    if (!challenge) {
+      throw new HttpError(404, "Challenge Not Found");
+    }
+    return challenge;
+  }
 }

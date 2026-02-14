@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { ChallengeModel, IChallenge } from "../model/challenge.model";
 
 export interface IChallengeRepository {
@@ -70,6 +71,7 @@ export class ChallengeRepository implements IChallengeRepository {
   ): Promise<IChallenge[]> {
     return await ChallengeModel.find({ challengerId: userId })
       .skip(skip)
+      .populate("challengerId", "_id username avatar")
       .limit(limit)
       .exec();
   }
@@ -97,5 +99,23 @@ export class ChallengeRepository implements IChallengeRepository {
       { $set: { status: "closed" } },
       { new: true },
     );
+  }
+
+  async increaseSubmisionCount(
+    challengeId: string,
+  ): Promise<IChallenge | null> {
+    const challengeObjId = new Types.ObjectId(challengeId);
+    return await ChallengeModel.findByIdAndUpdate(challengeObjId, {
+      $inc: { submissionCount: 1 },
+    });
+  }
+
+  async decreaseSubmissionCount(
+    challengeId: string,
+  ): Promise<IChallenge | null> {
+    const challengeObjId = new Types.ObjectId(challengeId);
+    return await ChallengeModel.findByIdAndUpdate(challengeObjId, {
+      $inc: { submissionCount: -1 },
+    });
   }
 }

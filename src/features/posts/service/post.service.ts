@@ -4,9 +4,11 @@ import { PostRepository } from "../repository/post.repository";
 import { CreatePostDTO, EditPostDTO } from "../dto/post.dto";
 import { UserRepository } from "../../user/repository/user.repository";
 import { UserModel } from "../../user/model/user.model";
+import { FollowRepository } from "../../follow/repository/follow.repository";
 
 const userRepository = new UserRepository();
 const postRepository = new PostRepository();
+const followRepository = new FollowRepository();
 
 export class PostService {
   async createPost(userId: string, data: CreatePostDTO): Promise<IPost> {
@@ -86,6 +88,16 @@ export class PostService {
     const skip = (page - 1) * limit;
 
     return await postRepository.getPublicFeed(skip, limit);
+  }
+
+  async getFollowingFeed(userId: string, page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+
+    const followingIds = await followRepository.getFollowingIdsOnly(userId);
+
+    if (followingIds.length === 0) return [];
+
+    return await postRepository.getFollowingFeed(followingIds, skip, limit);
   }
 
   async getPostsByUser(userId: string): Promise<IPost[]> {
