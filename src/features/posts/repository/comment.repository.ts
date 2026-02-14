@@ -16,6 +16,8 @@ export interface ICommentRepository {
   getCommentByUser(userId: string): Promise<IPostComment[]>;
 
   getCommentById(commentId: string): Promise<IPostComment | null>;
+
+  getCommentsForPost(postId: string): Promise<IPostComment[]>;
 }
 
 export class PostCommentRepository implements ICommentRepository {
@@ -26,7 +28,7 @@ export class PostCommentRepository implements ICommentRepository {
     await newComment.save();
 
     return PostCommentModel.findById(newComment._id)
-      .populate("userId", "username")
+      .populate("userId", "username avatar")
       .exec() as Promise<IPostComment>;
   }
 
@@ -44,7 +46,7 @@ export class PostCommentRepository implements ICommentRepository {
       { $inc: { likeCount: 1 }, $addToSet: { likedBy: userIdObj } },
       { new: true },
     )
-      .populate("userId", "username")
+      .populate("userId", "username avatar")
       .exec();
 
     return likedComment;
@@ -66,6 +68,19 @@ export class PostCommentRepository implements ICommentRepository {
     return unlikedComment;
   }
 
+  getCommentsForPost(
+    postId: string,
+    skip: number = 0,
+    limit: number = 10,
+  ): Promise<IPostComment[]> {
+    return PostCommentModel.find({ postId })
+      .sort({ createdAt: -1 })
+      .populate("userId", "username avatar")
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec();
+  }
   async getCommentByUser(userId: string): Promise<IPostComment[]> {
     return PostCommentModel.find({ userId: userId }).exec();
   }

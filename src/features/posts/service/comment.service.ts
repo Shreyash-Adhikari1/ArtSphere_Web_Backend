@@ -3,6 +3,8 @@ import { CommentDTO } from "../dto/comment.dto";
 import { IPostComment, PostCommentModel, PostModel } from "../model/post.model";
 import { PostCommentRepository } from "../repository/comment.repository";
 import { PostRepository } from "../repository/post.repository";
+import postRouter from "../route/post.route";
+import { HttpError } from "../../../errors/http-error";
 
 const commentRepository = new PostCommentRepository();
 const postRepository = new PostRepository();
@@ -120,5 +122,9 @@ export class CommentService {
     // });
 
     return { message: "Comment Unliked" };
+  }
+
+  async getCommentByPost(postId: string) {
+    return await commentRepository.getCommentsForPost(postId);
   }
 }
