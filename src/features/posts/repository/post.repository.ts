@@ -40,6 +40,17 @@ export class PostRepository implements PostRepositoryInterface {
       .exec();
   }
 
+  async getFollowingFeed(authorIds: string[], skip = 0, limit = 10) {
+    return PostModel.find({
+      author: { $in: authorIds },
+    })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("author", "_id username avatar")
+      .exec();
+  }
+
   async getPostById(postId: string): Promise<IPost | null> {
     return PostModel.findOne({ _id: postId, isDeleted: false })
       .populate("author", "username avatar")

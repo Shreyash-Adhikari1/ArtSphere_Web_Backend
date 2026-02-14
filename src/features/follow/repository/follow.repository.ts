@@ -50,15 +50,24 @@ export class FollowRepository implements FollowRepositoryInterface {
   // Get all users who follow this user
   async getFollowers(userId: string): Promise<IFollow[]> {
     return FollowModel.find({ following: userId, isFollowActive: true })
-      .populate("follower", "_id username") // optionally populate the follower info
+      .populate("follower", "_id username avatar")
       .exec();
   }
 
   // Get all users that this user is following
   async getFollowing(userId: string): Promise<IFollow[]> {
     return FollowModel.find({ follower: userId, isFollowActive: true })
-      .populate("following", "_id username") // optionally populate the followed user info
+      .populate("following", "_id username avatar")
       .exec();
+  }
+  // This method has been added purely to filter posts by following
+  async getFollowingIdsOnly(userId: string): Promise<string[]> {
+    const rows = await FollowModel.find({ follower: userId })
+      .select("following")
+      .lean()
+      .exec();
+
+    return rows.map((r: any) => String(r.following));
   }
 
   // Check if followerId is following followingId

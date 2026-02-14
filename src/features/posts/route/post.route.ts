@@ -17,6 +17,11 @@ postRouter.patch("/edit", authMiddleware, postController.editPost);
 
 // Fetch Routes
 postRouter.get("/posts", authMiddleware, postController.getFeed);
+postRouter.get(
+  "/posts/following",
+  authMiddleware,
+  postController.getFollowingFeed,
+);
 postRouter.get("/posts/my-posts", authMiddleware, postController.getMyPosts);
 postRouter.get(
   "/posts/user/:userId",
