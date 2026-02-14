@@ -21,7 +21,10 @@ export class PostController {
         return res.status(400).json({ message: "Media file is required" });
       }
       console.log("Media Aayo, aba agaadi jaaney");
-      const postFileName = req.file.filename;
+      // const postFileName = req.file.filename ?? "test-file";
+      const postFileName =
+        (req.file as any)?.filename ??
+        `test-${Date.now()}-${req.file?.originalname ?? "image.jpg"}`;
       if (!userId) {
         return res.status(400).json({
           success: false,

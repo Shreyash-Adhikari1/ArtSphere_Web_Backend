@@ -38,7 +38,7 @@ challengeRouter.delete(
 );
 
 challengeRouter.delete(
-  "/delete/all-my-posts",
+  "/delete/all-my-challenges",
   authMiddleware,
   challengeController.deleteAllChallengesByUser,
 );

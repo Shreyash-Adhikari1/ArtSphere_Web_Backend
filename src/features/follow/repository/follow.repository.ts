@@ -49,14 +49,14 @@ export class FollowRepository implements FollowRepositoryInterface {
 
   // Get all users who follow this user
   async getFollowers(userId: string): Promise<IFollow[]> {
-    return FollowModel.find({ following: userId, isDeleted: false })
+    return FollowModel.find({ following: userId, isFollowActive: true })
       .populate("follower", "_id username") // optionally populate the follower info
       .exec();
   }
 
   // Get all users that this user is following
   async getFollowing(userId: string): Promise<IFollow[]> {
-    return FollowModel.find({ follower: userId, isFollowActive: false })
+    return FollowModel.find({ follower: userId, isFollowActive: true })
       .populate("following", "_id username") // optionally populate the followed user info
       .exec();
   }
@@ -66,7 +66,7 @@ export class FollowRepository implements FollowRepositoryInterface {
     const follow = await FollowModel.findOne({
       follower: followerId,
       following: followingId,
-      isFollowActive: false,
+      isFollowActive: true,
     }).exec();
     return !!follow;
   }

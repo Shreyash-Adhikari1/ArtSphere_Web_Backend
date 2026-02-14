@@ -29,6 +29,13 @@ adminRouter.get(
   adminController.getUserByusername,
 );
 
+adminRouter.patch(
+  "/users/edit/:userId",
+  authMiddleware,
+  adminOnly,
+  adminController.editUser,
+);
+
 // User Delete Routes
 adminRouter.delete(
   "/users/deleteAll",

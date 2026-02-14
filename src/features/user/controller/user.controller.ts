@@ -15,7 +15,7 @@ export class UserController {
       if (!registerDetailsParsed.success) {
         return res
           .status(400)
-          .json({ success: false, messaeg: "Registration Failed" });
+          .json({ success: false, message: "Registration Failed" });
       }
 
       const user = await userService.createUser(registerDetailsParsed.data);
@@ -42,7 +42,7 @@ export class UserController {
     try {
       if (!loginDetailsParsed.success) {
         return res
-          .status(401)
+          .status(400)
           .json({ success: false, message: "Invalid Credentials" });
       }
 
@@ -64,9 +64,32 @@ export class UserController {
     }
   };
 
-  getProfile = async (req: Request, res: Response) => {
+  getMyProfile = async (req: Request, res: Response) => {
     try {
       const userId = (req as any).user.id;
+
+      const user = await userService.getUserById(userId);
+
+      return res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return res.status(404).json({
+        success: false,
+        message: error.message || "User not found",
+      });
+    }
+  };
+
+  getUserProfile = async (req: Request, res: Response) => {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
 
       const user = await userService.getUserById(userId);
 
@@ -110,7 +133,7 @@ export class UserController {
         user: updatedUser,
       });
     } catch (error: any) {
-      return res.status(400).json({
+      return res.status(500).json({
         success: false,
         message: error.message || "Something went wrong",
       });
@@ -174,19 +197,15 @@ export class UserController {
       const token = req.params.token;
       const { newPassword } = req.body;
       await userService.resetPassword(token, newPassword);
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Password has been reset successfully.",
-        });
+      return res.status(200).json({
+        success: true,
+        message: "Password has been reset successfully.",
+      });
     } catch (error: Error | any) {
-      return res
-        .status(error.statusCode ?? 500)
-        .json({
-          success: false,
-          message: error.message || "Internal Server Error",
-        });
+      return res.status(error.statusCode ?? 500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
     }
   };
 }

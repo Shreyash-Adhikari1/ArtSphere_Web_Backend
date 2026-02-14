@@ -2,8 +2,13 @@ import { Request, Response } from "express";
 import { AdminService } from "../service/admin.service";
 import { success } from "zod";
 import { AdminRepository } from "../repository/admin.repository";
+import { UserService } from "../../user/service/user.service";
+import { PostService } from "../../posts/service/post.service";
+import { EditUserDTO } from "../../user/dto/user.dto";
 
 const adminService = new AdminService();
+const userService = new UserService();
+const postService = new PostService();
 export class AdminController {
   // User Operations
   getAllusers = async (req: Request, res: Response) => {
@@ -64,6 +69,41 @@ export class AdminController {
       return res
         .status(200)
         .json({ success: true, message: "User Found", user: user });
+    } catch (error: any) {
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
+    }
+  };
+
+  editUser = async (req: Request, res: Response) => {
+    console.log(req.file);
+    try {
+      const editDetailsParsed = EditUserDTO.safeParse(req.body);
+
+      if (!editDetailsParsed.success) {
+        return res.status(400).json({
+          message: "Invalid input",
+          errors: editDetailsParsed.error.format(),
+        });
+      }
+      const { userId } = req.params;
+      // if (!req.file) {
+      //   return res.status(400).json({ message: "No file uploaded" });
+      // }
+      // Extract filename from multer
+      const avatarFileName = req.file?.filename;
+
+      const updatedUser = await userService.updateUser(userId, {
+        ...editDetailsParsed.data,
+        avatar: avatarFileName,
+      });
+      return res.status(200).json({
+        success: true,
+        message: "User updated successfully",
+        user: updatedUser,
+      });
     } catch (error: any) {
       return res.status(500).json({
         success: false,
