@@ -70,6 +70,7 @@ export class ChallengeRepository implements IChallengeRepository {
   ): Promise<IChallenge[]> {
     return await ChallengeModel.find({ challengerId: userId })
       .skip(skip)
+      .populate("challengerId", "_id username avatar")
       .limit(limit)
       .exec();
   }
