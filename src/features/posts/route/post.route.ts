@@ -17,7 +17,12 @@ postRouter.patch("/edit", authMiddleware, postController.editPost);
 
 // Fetch Routes
 postRouter.get("/posts", authMiddleware, postController.getFeed);
-postRouter.get("/posts/my-posts", authMiddleware, postController.getPostByUser);
+postRouter.get("/posts/my-posts", authMiddleware, postController.getMyPosts);
+postRouter.get(
+  "/posts/user/:userId",
+  authMiddleware,
+  postController.getPostsByUser,
+);
 
 // Delete Routes
 postRouter.delete("/delete/:postId", authMiddleware, postController.deletePost);

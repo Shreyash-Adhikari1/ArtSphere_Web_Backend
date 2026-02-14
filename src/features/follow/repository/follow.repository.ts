@@ -63,11 +63,10 @@ export class FollowRepository implements FollowRepositoryInterface {
 
   // Check if followerId is following followingId
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
-    const follow = await FollowModel.findOne({
+    const exists = await FollowModel.exists({
       follower: followerId,
       following: followingId,
-      isFollowActive: true,
-    }).exec();
-    return !!follow;
+    });
+    return !!exists;
   }
 }

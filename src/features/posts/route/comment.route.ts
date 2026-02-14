@@ -33,4 +33,11 @@ commentRouter.post(
   commentController.unlikeComment,
 );
 
+// get comments for post
+commentRouter.get(
+  "/post/:postId",
+  authMiddleware,
+  commentController.getCommentsForPost,
+);
+
 export default commentRouter;
