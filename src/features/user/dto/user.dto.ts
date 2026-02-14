@@ -33,6 +33,7 @@ export const EditUserDTO = UserSchema.pick({
   username: true,
   email: true,
   phoneNumber: true,
+  bio: true,
   address: true,
   avatar: true,
 }).partial(); // doesnt ask user to insert all field when editing

@@ -14,3 +14,8 @@
 
 # Test coverage
 /coverage
+
+# The Uploaded Files
+/uploads/challenge-images/
+/uploads/post-images/
+/uploads/profile-image/
