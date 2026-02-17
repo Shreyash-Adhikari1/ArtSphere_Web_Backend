@@ -13,7 +13,7 @@ postRouter.post(
   uploads.single("post-images"),
   postController.createPost,
 );
-postRouter.patch("/edit", authMiddleware, postController.editPost);
+postRouter.patch("/edit/:postId", authMiddleware, postController.editPost);
 
 // Fetch Routes
 postRouter.get("/posts", authMiddleware, postController.getFeed);

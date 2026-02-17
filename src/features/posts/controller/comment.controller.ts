@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CommentDTO } from "../dto/comment.dto";
 import { CommentService } from "../service/comment.service";
+import { CreatePostDTO } from "../dto/post.dto";
 
 const commentService = new CommentService();
 
@@ -145,13 +146,11 @@ export class CommentController {
           .json({ success: false, message: "Post Not Found" });
       }
       const comments = await commentService.getCommentByPost(postId);
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Comments Fetched Successfully",
-          comments: comments,
-        });
+      return res.status(200).json({
+        success: true,
+        message: "Comments Fetched Successfully",
+        comments: comments,
+      });
     } catch (error: any) {
       return res.status(500).json({
         success: false,
