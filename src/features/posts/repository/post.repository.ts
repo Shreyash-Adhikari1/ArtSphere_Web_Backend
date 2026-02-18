@@ -60,6 +60,7 @@ export class PostRepository implements PostRepositoryInterface {
   async getPostsByUser(userId: string, skip = 0, limit = 10): Promise<IPost[]> {
     return PostModel.find({ author: userId, isDeleted: false })
       .sort({ createdAt: -1 })
+      .populate("author", "username avatar")
       .skip(skip)
       .limit(limit)
       .exec();
