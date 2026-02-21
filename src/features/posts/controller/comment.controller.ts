@@ -146,11 +146,13 @@ export class CommentController {
           .json({ success: false, message: "Post Not Found" });
       }
       const comments = await commentService.getCommentByPost(postId);
-      return res.status(200).json({
-        success: true,
-        message: "Comments Fetched Successfully",
-        comments: comments,
-      });
+      return res
+        .status(200)
+        .json({
+          success: true,
+          message: "Comments Fetched Successfully",
+          comments: comments,
+        });
     } catch (error: any) {
       return res.status(500).json({
         success: false,

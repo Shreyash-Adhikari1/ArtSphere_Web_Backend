@@ -21,8 +21,8 @@ export class FollowRepository implements FollowRepositoryInterface {
     await newFollow.save(); // saves to DB
 
     return FollowModel.findById(newFollow._id)
-      .populate("follower", "username")
-      .populate("following", "username")
+      .populate("follower", "_id username avatar")
+      .populate("following", "_id username avatar")
       .exec() as Promise<IFollow>;
   }
 
@@ -36,8 +36,8 @@ export class FollowRepository implements FollowRepositoryInterface {
       follower: followerId,
       following: followingId,
     })
-      .populate("follower", "username")
-      .populate("following", "username")
+      .populate("follower", "_id username avatar")
+      .populate("following", "_id username avatar")
       .exec();
 
     if (!deletedFollow) {
