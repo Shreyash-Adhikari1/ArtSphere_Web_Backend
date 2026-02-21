@@ -7,6 +7,16 @@ import { HttpError } from "../../../errors/http-error";
 const followRepository = new FollowRepository();
 const userRepository = new UserRepository();
 
+type FollowRowWithFlag = {
+  _id: any;
+  follower: any;
+  following: any;
+  isFollowActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isFollowedByMe: boolean;
+};
+
 export class FollowService {
   async follow(
     followerId: string,
@@ -66,12 +76,60 @@ export class FollowService {
     return unfollow;
   }
 
-  async getFollowers(userId: string): Promise<IFollow[]> {
-    return await followRepository.getFollowers(userId);
+  async getFollowersWithViewerFlag(
+    userId: string,
+    viewerId?: string,
+  ): Promise<FollowRowWithFlag[]> {
+    const rows = await followRepository.getFollowers(userId);
+
+    // If no viewer (public endpoint), just return false
+    if (!viewerId) {
+      return rows.map((r: any) => ({
+        ...(r.toObject?.() ?? r),
+        isFollowedByMe: false,
+      }));
+    }
+
+    // Get all ids that viewer follows ONCE
+    const viewerFollowingIds =
+      await followRepository.getFollowingIdsOnly(viewerId);
+    const set = new Set(viewerFollowingIds.map(String));
+
+    return rows.map((r: any) => {
+      const obj = r.toObject?.() ?? r;
+      const followerUserId = String(obj.follower?._id ?? obj.follower);
+      return {
+        ...obj,
+        isFollowedByMe: set.has(followerUserId),
+      };
+    });
   }
 
-  async getFollowing(userId: string): Promise<IFollow[]> {
-    return await followRepository.getFollowing(userId);
+  async getFollowingWithViewerFlag(
+    userId: string,
+    viewerId?: string,
+  ): Promise<FollowRowWithFlag[]> {
+    const rows = await followRepository.getFollowing(userId);
+
+    if (!viewerId) {
+      return rows.map((r: any) => ({
+        ...(r.toObject?.() ?? r),
+        isFollowedByMe: false,
+      }));
+    }
+
+    const viewerFollowingIds =
+      await followRepository.getFollowingIdsOnly(viewerId);
+    const set = new Set(viewerFollowingIds.map(String));
+
+    return rows.map((r: any) => {
+      const obj = r.toObject?.() ?? r;
+      const followingUserId = String(obj.following?._id ?? obj.following); // following is populated
+      return {
+        ...obj,
+        isFollowedByMe: set.has(followingUserId),
+      };
+    });
   }
 
   async isAlreadyFollowing(followerId: string, followingId: string) {

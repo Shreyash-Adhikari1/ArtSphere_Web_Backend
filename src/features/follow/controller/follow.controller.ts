@@ -65,24 +65,28 @@ export class FollowController {
       });
     }
   };
-
   getMyFollowers = async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).user.id;
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized || User unauthorized",
-        });
+      const viewerId = (req as any).user.id;
+      if (!viewerId) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Unauthorized" });
       }
-      const followers = await followService.getFollowers(userId);
+
+      // userId == viewerId
+      const data = await followService.getFollowersWithViewerFlag(
+        viewerId,
+        viewerId,
+      );
+
       return res.status(200).json({
         success: true,
         message: "Followers Fetched Successfully",
-        data: followers,
+        data,
       });
     } catch (error: any) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: error.message || "Internal Server Error",
       });
@@ -91,21 +95,25 @@ export class FollowController {
 
   getMyFollowing = async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).user.id;
-      if (!userId) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized || User unauthorized",
-        });
+      const viewerId = (req as any).user.id;
+      if (!viewerId) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Unauthorized" });
       }
-      const following = await followService.getFollowing(userId);
+
+      const data = await followService.getFollowingWithViewerFlag(
+        viewerId,
+        viewerId,
+      );
+
       return res.status(200).json({
         success: true,
         message: "Following Fetched Successfully",
-        data: following,
+        data,
       });
     } catch (error: any) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: error.message || "Internal Server Error",
       });
@@ -120,14 +128,21 @@ export class FollowController {
           .status(404)
           .json({ success: false, message: "user not found" });
       }
-      const followers = await followService.getFollowers(userId);
+
+      // since your endpoint is not public, viewerId exists
+      const viewerId = (req as any).user?.id;
+      const data = await followService.getFollowersWithViewerFlag(
+        userId,
+        viewerId,
+      );
+
       return res.status(200).json({
         success: true,
         message: "Users Followers Fetched Successfully",
-        data: followers,
+        data,
       });
     } catch (error: any) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: error.message || "Internal Server Error",
       });
@@ -142,14 +157,20 @@ export class FollowController {
           .status(404)
           .json({ success: false, message: "user not found" });
       }
-      const following = await followService.getFollowing(userId);
+
+      const viewerId = (req as any).user?.id;
+      const data = await followService.getFollowingWithViewerFlag(
+        userId,
+        viewerId,
+      );
+
       return res.status(200).json({
         success: true,
         message: "Users Following Fetched Successfully",
-        data: following,
+        data,
       });
     } catch (error: any) {
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: error.message || "Internal Server Error",
       });
