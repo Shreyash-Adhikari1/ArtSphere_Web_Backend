@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { CreateChallengeDTO, EditChallengeDTO } from "../dto/challenge.dto";
 import { ChallengeService } from "../service/challenge.service";
-import { success } from "zod";
 const challengeService = new ChallengeService();
 
 export class ChallengeController {
@@ -138,7 +137,7 @@ export class ChallengeController {
     try {
       const challenges = await challengeService.getAllChallenges();
       return res.status(200).json({
-        sucess: true,
+        success: true,
         message: "Challenges fetched successfully",
         challenges: challenges,
       });
@@ -158,7 +157,7 @@ export class ChallengeController {
       }
       const challenges = await challengeService.getChallengesByUser(userId);
       return res.status(200).json({
-        sucess: true,
+        success: true,
         message: "Challenges by user fetched successfully",
         challenges: challenges,
       });
