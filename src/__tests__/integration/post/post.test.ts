@@ -106,7 +106,6 @@ describe("Posts Integration (routes: /api/post/*)", () => {
         .field("caption", "bad file")
         .attach("post-images", nonImagePath);
 
-      // depends on upload.middleware fileFilter; many setups throw -> 500
       expect([400, 415, 500]).toContain(res.status);
     });
 
@@ -131,7 +130,7 @@ describe("Posts Integration (routes: /api/post/*)", () => {
       expect(res.body).toHaveProperty("message");
     });
 
-    test("should fail with invalid edit body (DTO validation)", async () => {
+    test("should fail with invalid edit body", async () => {
       const res = await request(app)
         .patch(`/api/post/edit/${postId}`)
         .set("Authorization", `Bearer ${authToken}`)
@@ -227,7 +226,6 @@ describe("Posts Integration (routes: /api/post/*)", () => {
         .get("/api/post/posts/my-posts")
         .set("Authorization", `Bearer ${authToken}`);
 
-      // your controller returns 200 if userId exists (it will because of authMiddleware)
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("posts");
       expect(Array.isArray(res.body.posts)).toBe(true);

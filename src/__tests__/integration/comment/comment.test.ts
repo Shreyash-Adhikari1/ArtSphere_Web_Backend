@@ -86,7 +86,7 @@ describe("Comment Integration (routes: /api/comment/*)", () => {
 
   // ===================== CREATE COMMENT =====================
 
-  test("should create a comment (authorized)", async () => {
+  test("should create a comment", async () => {
     const res = await request(app)
       .post(`/api/comment/create/${postId}`)
       .set("Authorization", `Bearer ${authToken}`)
@@ -106,7 +106,7 @@ describe("Comment Integration (routes: /api/comment/*)", () => {
     expect(res.body).toHaveProperty("message", "No Token Provided");
   });
 
-  test("should fail to create comment with invalid body (DTO)", async () => {
+  test("should fail to create comment with invalid body", async () => {
     const res = await request(app)
       .post(`/api/comment/create/${postId}`)
       .set("Authorization", `Bearer ${authToken}`)
@@ -118,7 +118,7 @@ describe("Comment Integration (routes: /api/comment/*)", () => {
 
   // ===================== GET COMMENTS FOR POST =====================
 
-  test("should get comments for a post (authorized)", async () => {
+  test("should get comments for a post", async () => {
     const res = await request(app)
       .get(`/api/comment/post/${postId}`)
       .set("Authorization", `Bearer ${authToken}`);
@@ -165,7 +165,7 @@ describe("Comment Integration (routes: /api/comment/*)", () => {
     expect(res.body).toHaveProperty("message", "No Token Provided");
   });
 
-  test("should delete a comment (owned by user)", async () => {
+  test("should delete a comment", async () => {
     const freshCommentId = await createComment(postId, "Comment to delete");
 
     const res = await request(app)

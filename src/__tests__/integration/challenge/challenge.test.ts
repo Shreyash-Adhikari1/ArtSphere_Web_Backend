@@ -134,7 +134,7 @@ describe("Challenge Integration", () => {
 
   // ===================== GET BY ID (PROTECTED) =====================
 
-  test("should get challenge by id (authorized)", async () => {
+  test("should get challenge by id", async () => {
     if (!challengeId) challengeId = await createChallenge();
 
     const res = await request(app)
@@ -151,7 +151,7 @@ describe("Challenge Integration", () => {
 
   // ===================== EDIT =====================
 
-  test("should edit challenge successfully (authorized)", async () => {
+  test("should edit challenge successfully", async () => {
     if (!challengeId) challengeId = await createChallenge();
 
     // Replace fields with your real EditChallengeDTO keys
@@ -167,7 +167,7 @@ describe("Challenge Integration", () => {
 
   // ===================== DELETE =====================
 
-  test("should delete challenge successfully (authorized)", async () => {
+  test("should delete challenge successfully", async () => {
     const tempId = await createChallenge();
 
     const res = await request(app)

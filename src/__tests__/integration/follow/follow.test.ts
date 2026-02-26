@@ -60,14 +60,12 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     await UserModel.deleteMany({});
   });
 
-  // 1) auth required
   test("should fail follow without token", async () => {
     const res = await request(app).post(`/api/follow/follow/${userBId}`);
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "No Token Provided");
   });
 
-  // 2) initial is-following should be false
   test("is-following should be false before following", async () => {
     const res = await request(app)
       .get(`/api/follow/is-following/${userBId}`)
@@ -79,7 +77,6 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     expect(res.body.isFollowing).toBe(false);
   });
 
-  // 3) follow should succeed
   test("should follow a user successfully", async () => {
     const res = await request(app)
       .post(`/api/follow/follow/${userBId}`)
@@ -88,12 +85,10 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("message", "User Followed Successfully");
     expect(res.body).toHaveProperty("data");
-    // structure from controller:
     expect(res.body.data).toHaveProperty("follower");
     expect(res.body.data).toHaveProperty("following");
   });
 
-  // 4) is-following should become true after follow
   test("is-following should be true after following", async () => {
     const res = await request(app)
       .get(`/api/follow/is-following/${userBId}`)
@@ -104,7 +99,6 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     expect(res.body.isFollowing).toBe(true);
   });
 
-  // 5) my following should return 200
   test("should get my following list", async () => {
     const res = await request(app)
       .get("/api/follow/following")
@@ -119,7 +113,6 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 
-  // 6) my followers (for B) should include A after A followed B
   test("user B should have followers after being followed", async () => {
     const res = await request(app)
       .get("/api/follow/followers")
@@ -134,7 +127,6 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 
-  // 7) users followers endpoint should return 200
   test("should get followers of a specific user", async () => {
     const res = await request(app)
       .get(`/api/follow/${userBId}/followers`)
@@ -149,7 +141,6 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 
-  // 8) unfollow should succeed and is-following should be false again
   test("should unfollow successfully and status becomes false", async () => {
     const unfollowRes = await request(app)
       .post(`/api/follow/unfollow/${userBId}`)
