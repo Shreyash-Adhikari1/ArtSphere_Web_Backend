@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
-    "test": "jest --verbose --detectOpenHandles"
+    "test": "jest --verbose --detectOpenHandles",
+    "test:unit": "jest --selectProjects unit --verbose",
+    "test:integration": "jest --selectProjects integration --verbose --runInBand --detectOpenHandles"
   },
   "keywords": [],
   "author": "",
