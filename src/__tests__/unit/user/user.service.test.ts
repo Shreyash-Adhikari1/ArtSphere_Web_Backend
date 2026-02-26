@@ -9,7 +9,7 @@ jest.mock("jsonwebtoken", () => ({
   verify: jest.fn(),
 }));
 
-jest.mock("../../config/email", () => ({
+jest.mock("../../../config/email", () => ({
   sendEmail: jest.fn(),
 }));
 
@@ -26,14 +26,14 @@ const repoMock = {
   getUserByEmail: jest.fn(),
 };
 
-jest.mock("../../features/user/repository/user.repository", () => ({
+jest.mock("../../../features/user/repository/user.repository", () => ({
   UserRepository: jest.fn().mockImplementation(() => repoMock),
 }));
 
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { sendEmail } from "../../config/email";
-import { UserService } from "../../features/user/service/user.service";
+import { sendEmail } from "../../../config/email";
+import { UserService } from "../../../features/user/service/user.service";
 
 const hashMock = bcrypt.hash as unknown as jest.Mock;
 const compareMock = bcrypt.compare as unknown as jest.Mock;
