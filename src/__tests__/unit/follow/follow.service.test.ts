@@ -1,4 +1,3 @@
-// ✅ IMPORTANT: Initialize these objects BEFORE importing FollowService
 const followRepoMock = {
   isFollowing: jest.fn(),
   follow: jest.fn(),
