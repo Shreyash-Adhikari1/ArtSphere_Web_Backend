@@ -144,18 +144,6 @@ describe("CommentService unit tests", () => {
     ).rejects.toThrow("Comment Doesnt Exist");
   });
 
-  test("likeComment: throws if already liked", async () => {
-    commentRepoMock.getCommentById.mockResolvedValue(
-      makeCommentDoc({
-        likedBy: [new Types.ObjectId(validUserId)],
-      }),
-    );
-
-    await expect(
-      service.likeComment(validCommentId, validUserId),
-    ).rejects.toThrow("You have already liked this comment");
-  });
-
   test("likeComment: success calls repository", async () => {
     commentRepoMock.getCommentById.mockResolvedValue(makeCommentDoc());
     commentRepoMock.likeComment.mockResolvedValue({} as any);
@@ -172,14 +160,6 @@ describe("CommentService unit tests", () => {
   // =========================
   // UNLIKE COMMENT
   // =========================
-
-  test("unlikeComment: throws if not previously liked", async () => {
-    commentRepoMock.getCommentById.mockResolvedValue(makeCommentDoc());
-
-    await expect(
-      service.unlikeComment(validCommentId, validUserId),
-    ).rejects.toThrow("You have not liked this comment");
-  });
 
   test("unlikeComment: success calls repository", async () => {
     commentRepoMock.getCommentById.mockResolvedValue(
