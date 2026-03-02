@@ -24,7 +24,7 @@ export class PostRepository implements PostRepositoryInterface {
     return PostModel.find({ isDeleted: false })
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 })
+      .sort({ likeCount: -1, createdAt: -1 })
       .exec();
   }
 
@@ -33,7 +33,7 @@ export class PostRepository implements PostRepositoryInterface {
       isDeleted: false,
       visibility: "public",
     })
-      .sort({ createdAt: -1 })
+      .sort({ likeCount: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("author", "username avatar")
@@ -44,7 +44,7 @@ export class PostRepository implements PostRepositoryInterface {
     return PostModel.find({
       author: { $in: authorIds },
     })
-      .sort({ createdAt: -1 })
+      .sort({ likeCount: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("author", "_id username avatar")

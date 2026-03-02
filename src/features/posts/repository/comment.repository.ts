@@ -74,7 +74,7 @@ export class PostCommentRepository implements ICommentRepository {
     limit: number = 10,
   ): Promise<IPostComment[]> {
     return PostCommentModel.find({ postId })
-      .sort({ createdAt: -1 })
+      .sort({ likeCount: -1, createdAt: -1 })
       .populate("userId", "username avatar")
       .skip(skip)
       .limit(limit)
