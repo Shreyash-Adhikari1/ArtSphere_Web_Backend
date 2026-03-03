@@ -1,4 +1,3 @@
-// src/__tests__/setup.ts
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
