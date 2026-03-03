@@ -1,56 +1,65 @@
 import request from "supertest";
 import path from "path";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 import app from "../../../app";
 import { UserModel } from "../../../features/user/model/user.model";
 import { ChallengeModel } from "../../../features/challenge/model/challenge.model";
 
-const testUser = {
-  email: "challenge@test.com",
+const userA = {
+  email: "challengeA@test.com",
   password: "test@1234",
   confirmPassword: "test@1234",
-  username: "challengeUser",
-  fullName: "Challenge User",
+  username: "challengeUserA",
+  fullName: "Challenge User A",
   phoneNumber: "9800000011",
   address: "Kathmandu",
+  role: "user",
 };
 
-describe("Challenge Integration", () => {
-  let authToken: string;
+const userB = {
+  email: "challengeB@test.com",
+  password: "test@1234",
+  confirmPassword: "test@1234",
+  username: "challengeUserB",
+  fullName: "Challenge User B",
+  phoneNumber: "9800000012",
+  address: "Kathmandu",
+  role: "user",
+};
+
+describe("Challenge Integration (routes: /api/challenge/*)", () => {
+  let tokenA: string;
+  let tokenB: string;
+  let userAId: string;
+  let userBId: string;
+
   let challengeId: string;
 
   const imagePath = path.join(__dirname, "assets/test-image.jpg");
 
-  beforeAll(async () => {
-    await UserModel.deleteMany({});
+  const login = async (email: string, password: string) => {
+    const res = await request(app)
+      .post("/api/user/login")
+      .send({ email, password });
+    expect(res.body.token).toBeTruthy();
+    return res.body.token as string;
+  };
 
-    await ChallengeModel.deleteMany({});
+  const createChallengeAsA = async (
+    overrides?: Partial<Record<string, any>>,
+  ) => {
+    const endsAt = overrides?.endsAt ?? "2026-03-05";
 
-    const hashed = await bcrypt.hash(testUser.password, 10);
-    await UserModel.create({ ...testUser, password: hashed });
-
-    const loginRes = await request(app).post("/api/user/login").send({
-      email: testUser.email,
-      password: testUser.password,
-    });
-
-    authToken = loginRes.body.token;
-    expect(authToken).toBeTruthy();
-  });
-
-  afterAll(async () => {
-    await ChallengeModel.deleteMany({});
-    await UserModel.deleteMany({});
-  });
-
-  // Helper to create a challenge once
-  const createChallenge = async () => {
     const res = await request(app)
       .post("/api/challenge/create")
-      .set("Authorization", `Bearer ${authToken}`)
-      .field("challengeTitle", "My Test Challenge")
-      .field("challengeDescription", "Challenge description")
-      .field("endsAt", "2026-03-05")
+      .set("Authorization", `Bearer ${tokenA}`)
+      .field("challengeTitle", overrides?.challengeTitle ?? "My Test Challenge")
+      .field(
+        "challengeDescription",
+        overrides?.challengeDescription ?? "Challenge description",
+      )
+      .field("endsAt", endsAt)
       .attach("challenge-images", imagePath);
 
     expect(res.status).toBe(201);
@@ -66,12 +75,39 @@ describe("Challenge Integration", () => {
       res.body.challenge?._doc?._id;
 
     expect(id).toBeTruthy();
-    return id as string;
+    return String(id);
   };
+
+  beforeAll(async () => {
+    await UserModel.deleteMany({});
+    await ChallengeModel.deleteMany({});
+
+    const hashA = await bcrypt.hash(userA.password, 10);
+    const hashB = await bcrypt.hash(userB.password, 10);
+
+    const createdA = await UserModel.create({ ...userA, password: hashA });
+    const createdB = await UserModel.create({ ...userB, password: hashB });
+
+    userAId = String((createdA as any)._id);
+    userBId = String((createdB as any)._id);
+
+    tokenA = await login(userA.email, userA.password);
+    tokenB = await login(userB.email, userB.password);
+
+    // seed one challenge by A
+    challengeId = await createChallengeAsA({
+      challengeTitle: "Seed Challenge",
+    });
+  });
+
+  afterAll(async () => {
+    await ChallengeModel.deleteMany({});
+    await UserModel.deleteMany({});
+  });
 
   // ===================== GET ALL (PUBLIC) =====================
 
-  test("should get all challenges", async () => {
+  test("GET /getall should return list (public)", async () => {
     const res = await request(app).get("/api/challenge/getall");
 
     expect(res.status).toBe(200);
@@ -79,67 +115,74 @@ describe("Challenge Integration", () => {
       "message",
       "Challenges fetched successfully",
     );
-    expect(res.body).toHaveProperty("challenges");
     expect(Array.isArray(res.body.challenges)).toBe(true);
   });
 
-  // ===================== CREATE =====================
-
-  test("should fail creating challenge without token", async () => {
+  test("POST /create should fail without token", async () => {
     const res = await request(app).post("/api/challenge/create").send({});
 
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "No Token Provided");
   });
 
-  test("should fail creating challenge with invalid body", async () => {
+  test("POST /create should fail when DTO invalid (missing required fields)", async () => {
     const res = await request(app)
       .post("/api/challenge/create")
-      .set("Authorization", `Bearer ${authToken}`)
-      .field("challengTitle", "")
-      .field("endsAt", "2026-03-06")
+      .set("Authorization", `Bearer ${tokenA}`)
+      .field("challengeTitle", "") // invalid
+      .attach("challenge-images", imagePath);
+
+    expect([400, 500]).toContain(res.status);
+  });
+
+  test("POST /create should fail when endsAt is in the past (service validation)", async () => {
+    const res = await request(app)
+      .post("/api/challenge/create")
+      .set("Authorization", `Bearer ${tokenA}`)
+      .field("challengeTitle", "Past Challenge")
+      .field("challengeDescription", "desc")
+      .field("endsAt", "2020-01-01")
       .attach("challenge-images", imagePath);
 
     expect(res.status).toBe(500);
   });
 
-  test("should create a challenge", async () => {
-    challengeId = await createChallenge();
+  test("POST /create should create a challenge (happy path)", async () => {
+    const id = await createChallengeAsA({
+      challengeTitle: "Created from test",
+    });
+    expect(id).toBeTruthy();
   });
 
-  // ===================== GET MY (PROTECTED) =====================
+  test("GET /getmy should fail without token", async () => {
+    const res = await request(app).get("/api/challenge/getmy");
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "No Token Provided");
+  });
 
-  test("should get my challenges", async () => {
-    if (!challengeId) challengeId = await createChallenge();
-
+  test("GET /getmy should return my challenges (token)", async () => {
     const res = await request(app)
       .get("/api/challenge/getmy")
-      .set("Authorization", `Bearer ${authToken}`);
+      .set("Authorization", `Bearer ${tokenA}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty(
       "message",
       "Challenges by user fetched successfully",
     );
-    expect(res.body).toHaveProperty("challenges");
     expect(Array.isArray(res.body.challenges)).toBe(true);
   });
 
-  test("should fail getmy without token", async () => {
-    const res = await request(app).get("/api/challenge/getmy");
-
+  test("GET /:challengeId should fail without token", async () => {
+    const res = await request(app).get(`/api/challenge/${challengeId}`);
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty("message", "No Token Provided");
   });
 
-  // ===================== GET BY ID (PROTECTED) =====================
-
-  test("should get challenge by id", async () => {
-    if (!challengeId) challengeId = await createChallenge();
-
+  test("GET /:challengeId should return challenge by id (token)", async () => {
     const res = await request(app)
       .get(`/api/challenge/${challengeId}`)
-      .set("Authorization", `Bearer ${authToken}`);
+      .set("Authorization", `Bearer ${tokenA}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty(
@@ -149,15 +192,43 @@ describe("Challenge Integration", () => {
     expect(res.body).toHaveProperty("challenge");
   });
 
-  // ===================== EDIT =====================
+  test("GET /:challengeId should return 500/404 for non-existent challenge", async () => {
+    const fakeId = new mongoose.Types.ObjectId().toString();
 
-  test("should edit challenge successfully", async () => {
-    if (!challengeId) challengeId = await createChallenge();
+    const res = await request(app)
+      .get(`/api/challenge/${fakeId}`)
+      .set("Authorization", `Bearer ${tokenA}`);
 
-    // Replace fields with your real EditChallengeDTO keys
+    expect([404, 500]).toContain(res.status);
+  });
+
+  test("PATCH /edit/:challengeId should fail without token", async () => {
     const res = await request(app)
       .patch(`/api/challenge/edit/${challengeId}`)
-      .set("Authorization", `Bearer ${authToken}`)
+      .send({ challengeTitle: "No token edit" });
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "No Token Provided");
+  });
+
+  test("PATCH /edit/:challengeId should fail with invalid edit body (DTO)", async () => {
+    const res = await request(app)
+      .patch(`/api/challenge/edit/${challengeId}`)
+      .set("Authorization", `Bearer ${tokenA}`)
+      .send({ challengeTitle: 12345 }); // invalid type
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty(
+      "message",
+      "Bad Request || Invalid Edit Data",
+    );
+    expect(res.body).toHaveProperty("errors");
+  });
+
+  test("PATCH /edit/:challengeId should edit successfully (owner)", async () => {
+    const res = await request(app)
+      .patch(`/api/challenge/edit/${challengeId}`)
+      .set("Authorization", `Bearer ${tokenA}`)
       .send({ challengeTitle: "Updated Challenge Title" });
 
     expect(res.status).toBe(200);
@@ -165,19 +236,68 @@ describe("Challenge Integration", () => {
     expect(res.body).toHaveProperty("challenge");
   });
 
-  // ===================== DELETE =====================
+  test("PATCH /edit/:challengeId should fail when editing someone else's challenge (403 in service -> 500 in controller)", async () => {
+    const res = await request(app)
+      .patch(`/api/challenge/edit/${challengeId}`)
+      .set("Authorization", `Bearer ${tokenB}`)
+      .send({ challengeTitle: "Hacked Title" });
 
-  test("should delete challenge successfully", async () => {
-    const tempId = await createChallenge();
+    expect(res.status).toBe(500);
+  });
+
+  test("PATCH /edit/:challengeId should fail when challenge is expired (service branch)", async () => {
+    const tempId = await createChallengeAsA({ challengeTitle: "Will expire" });
+
+    // Force endsAt to past
+    await ChallengeModel.findByIdAndUpdate(tempId, {
+      endsAt: new Date("2020-01-01"),
+    });
+
+    const res = await request(app)
+      .patch(`/api/challenge/edit/${tempId}`)
+      .set("Authorization", `Bearer ${tokenA}`)
+      .send({ challengeTitle: "Edit after expiry" });
+
+    expect(res.status).toBe(500);
+  });
+
+  test("DELETE /delete/:challengeId should fail without token", async () => {
+    const res = await request(app).delete(
+      `/api/challenge/delete/${challengeId}`,
+    );
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "No Token Provided");
+  });
+
+  test("DELETE /delete/:challengeId should fail deleting someone else's challenge (403 in service -> 500 in controller)", async () => {
+    const res = await request(app)
+      .delete(`/api/challenge/delete/${challengeId}`)
+      .set("Authorization", `Bearer ${tokenB}`);
+
+    expect(res.status).toBe(500);
+  });
+
+  test("DELETE /delete/:challengeId should delete successfully (owner)", async () => {
+    const tempId = await createChallengeAsA({ challengeTitle: "To delete" });
 
     const res = await request(app)
       .delete(`/api/challenge/delete/${tempId}`)
-      .set("Authorization", `Bearer ${authToken}`);
+      .set("Authorization", `Bearer ${tokenA}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty(
       "message",
       "Challenge Deleted Successfully",
     );
+  });
+
+  // ===================== DELETE ALL MY CHALLENGES =====================
+
+  test("DELETE /delete/all-my-challenges should fail without token", async () => {
+    const res = await request(app).delete(
+      "/api/challenge/delete/all-my-challenges",
+    );
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty("message", "No Token Provided");
   });
 });

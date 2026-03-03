@@ -45,7 +45,7 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
 
   beforeAll(async () => {
     await UserModel.deleteMany({});
-    // if (FollowModel) await FollowModel.deleteMany({});
+    await FollowModel.deleteMany({});
 
     const hashA = await bcrypt.hash(userA.password, 10);
     const hashB = await bcrypt.hash(userB.password, 10);
@@ -82,11 +82,8 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
   });
 
   afterAll(async () => {
-    // if (FollowModel) await FollowModel.deleteMany({});
     await UserModel.deleteMany({});
   });
-
-  // ---------------- AUTH MIDDLEWARE BRANCHES ----------------
 
   test("should fail follow without token", async () => {
     const res = await request(app).post(`/api/follow/follow/${userBId}`);
@@ -103,14 +100,11 @@ describe("Follow Integration (routes: /api/follow/*)", () => {
     expect(res.body).toHaveProperty("message", "Invalid or expired token");
   });
 
-  // ---------------- FOLLOW / UNFOLLOW EDGE CASES ----------------
-
   test("follow self should fail (service rule)", async () => {
     const res = await request(app)
       .post(`/api/follow/follow/${userAId}`)
       .set("Authorization", `Bearer ${tokenA}`);
 
-    // controller catches and returns 500 with the error message
     expect(res.status).toBe(500);
     expect(res.body).toHaveProperty("message");
     expect(String(res.body.message).toLowerCase()).toContain("yourself");
