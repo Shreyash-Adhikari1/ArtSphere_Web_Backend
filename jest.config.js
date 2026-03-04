@@ -1,8 +1,24 @@
 module.exports = {
-  preset: "ts-jest",
-  testEnvironment: "node",
-  roots: ["<rootDir>/src"],
-  testMatch: ["**/__tests__/**/*.test.ts"],
+  coverageProvider: "v8",
+  projects: [
+    {
+      displayName: "unit",
+      preset: "ts-jest",
+      testEnvironment: "node",
+      roots: ["<rootDir>/src"],
+      testMatch: ["**/__tests__/unit/**/*.test.ts"],
+      setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.unit.ts"],
+    },
+    {
+      displayName: "integration",
+      preset: "ts-jest",
+      testEnvironment: "node",
+      roots: ["<rootDir>/src"],
+      testMatch: ["**/__tests__/integration/**/*.test.ts"],
+      setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
+      maxWorkers: 1,
+    },
+  ],
   collectCoverageFrom: [
     "src/**/*.ts",
     "!src/**/*.d.ts",
@@ -10,5 +26,4 @@ module.exports = {
     "!src/app.ts",
     "!src/__tests__/**",
   ],
-  setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
 };

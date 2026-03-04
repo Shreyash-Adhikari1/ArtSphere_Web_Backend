@@ -83,12 +83,11 @@ export class ChallengeRepository implements IChallengeRepository {
     return challenge;
   }
 
-  async deleteAllChallengesByUser(
-    userId: string,
-  ): Promise<{ deletedCount: number }> {
+  async deleteAllChallengesByUser(userId: string) {
     const deleted = await ChallengeModel.deleteMany({
-      challengerId: userId,
+      challengerId: new Types.ObjectId(userId),
     }).exec();
+
     return deleted;
   }
 

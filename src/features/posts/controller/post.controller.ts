@@ -13,7 +13,7 @@ export class PostController {
       console.log("Post Details :", postDetailsParsed);
       if (!postDetailsParsed.success) {
         return res
-          .status(401)
+          .status(400)
           .json({ success: false, message: "Create Post Failed" });
       }
       const userId = (req as any).user.id; //userId is taken from jwt and is not given by the user/client
